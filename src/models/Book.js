@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config";
-import { allColors } from "winston/lib/winston/config";
 
 const Book = sequelize.define("Book", {
   id: {
