@@ -7,6 +7,7 @@ const logger = winston.createLogger({
   ],
 });
 
-loggers.set("default", logger);
+loggers.add("default", logger);
+logger.info("This is info message");
 
 export default logger;
