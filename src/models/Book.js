@@ -4,6 +4,8 @@ import { sequelize } from "../config/db.config";
 const Book = sequelize.define("Book", {
   id: {
     type: DataTypes.UUIDV4(),
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
     allowNull: false,
   },
   image: {
