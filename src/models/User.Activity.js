@@ -4,6 +4,8 @@ import { sequelize } from "../config/db.config.js";
 const UserActivity = sequelize.define("borrowing_activity", {
   id: {
     type: DataTypes.UUIDV4(),
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
     allowNull: false,
   },
   user_id: {
