@@ -1,0 +1,143 @@
+Loyiha: Kutubxona Boshqaruv Tizimi (Library Management System)
+
+Tavsiya
+Ushbu loyiha kutubxonalar va maktablar uchun kitoblarni boshqarish tizimi yaratishga qaratilgan. Tizim foydalanuvchi, kitob va qarz olish faoliyatini boshqaradi. Shuningdek, kitoblarni tahlil qilib, mashhur kitoblar va ularning holatini ko‘rsatuvchi analytics tizimi mavjud.
+
+---
+
+Backend Yangi Yaratilishi Kerak Bo‘lgan Jadval va So‘rovlar:
+
+     1. Kitoblar Jadvali (`book`)
+
+- Ma’lumotlar:
+  - `id` — UUID (unikal identifikator)
+  - `image` — Kitobning rasm manzili
+  - `title` — Kitob nomi
+  - `author` — Muallif ismi
+  - `isbn` — Kitobning ISBN raqami
+  - `genre` — Kitob janri
+  - `publisher` — Nashriyot nomi
+  - `publication_year` — Nashr etilgan yili
+  - `language` — Kitob tili
+  - `keywords` — Kalit so‘zlar
+  - `description` — Kitob tavsifi
+  - `book_status` — Kitob holati (available, on loan, lost, damaged)
+  - `readed_count` — Necha marta o‘qilgan
+  - `missing_books` — Yo‘qolgan kitoblar soni
+  - `available` — Mavjud nusxalar soni
+  - `loaned_date` — Qarzga olingan sana
+  - `due_date` — Qaytarish muddati
+  - `returned_date` — Qaytarilgan sana
+  - `created_at` — Yaratilgan sana
+  - `updated_at` — Oxirgi yangilangan sana
+
+- So‘rovlar:
+  - `GET /books` — Barcha kitoblar ro‘yxatini olish
+  - `GET /books/:id` — Muayyan kitobni olish
+  - `POST /books/add` — Yangi kitob qo‘shish
+  - `PUT /books/update/:id` — Kitobni yangilash
+  - `DELETE /books/delete/:id` — Kitobni o‘chirish
+
+     2. Foydalanuvchilar Jadvali (`user`)
+
+- Ma’lumotlar:
+  - `id` — UUID (unikal identifikator)
+  - `first_name` — Foydalanuvchi ismi
+  - `last_name` — Foydalanuvchi familiyasi
+  - `phone` — Telefon raqami yoki email
+  - `password` — Parol (hashed)
+  - `gender` — Foydalanuvchi jinsi (male, female)
+  - `role` — Foydalanuvchi roli (admin, librarian, user)
+  - `created_at` — Yaratilgan sana
+  - `updated_at` — Oxirgi yangilangan sana
+
+- So‘rovlar:
+  - `GET /users` — Barcha foydalanuvchilar ro‘yxatini olish
+  - `POST /users/signup` — Foydalanuvchi ro‘yxatdan o‘tishi
+  - `POST /users/signin` — Foydalanuvchi tizimga kirishi
+  - `PUT /users/update/:id` — Foydalanuvchini yangilash
+  - `DELETE /users/delete/:id` — Foydalanuvchini o‘chirish
+
+     3. Qarz Olish Faoliyati Jadvali (`borrowing_activity`)
+
+- Ma’lumotlar:
+  - `id` — UUID (unikal identifikator)
+  - `user_id` — Foydalanuvchi ID-si
+  - `book_id` — Kitob ID-si
+  - `borrow_date` — Kitob olingan sana
+  - `due_date` — Qaytarish muddati
+  - `return_date` — Kitob qaytarilgan sana
+  - `status` — Qarz holati (borrowed, returned, overdue)
+  - `created_at` — Yaratilgan sana
+  - `updated_at` — Oxirgi yangilangan sana
+
+     4. Kitob Tahlili Jadvali (`books_analytics`)
+
+- Ma’lumotlar:
+  - `id` — UUID (unikal identifikator)
+  - `book_id` — Kitob ID-si
+  - `times_borrowed` — Kitob qancha marta qarzga olingan
+  - `missing_count` — Yo‘qolgan kitoblar soni
+  - `created_at` — Yaratilgan sana
+
+- So‘rovlar:
+  - `GET /analytics/popular-books` — Mashhur kitoblar ro‘yxatini olish
+  - `GET /analytics/book/:id` — Muayyan kitobning tahlilini olish
+  - `GET /analytics/available-books` — Mavjud kitoblar ro‘yxatini olish
+
+---
+
+     Frontend Yangi Yaratilishi Kerak Bo‘lgan Funktsiyalar:
+
+      1. Kitoblar Ro‘yxati
+  - Ma’lumotlar: Kitoblarning nomi, muallifi, nashriyot, holati, mavjudligi
+  - So‘rovlar: `GET /books`
+  - Ko‘rsatish: Kitoblar kartochkalar ko‘rinishida, har bir kitob haqida qisqacha ma’lumot va “qaytarish” tugmasi.
+
+      2. Foydalanuvchi Ro‘yxatdan O‘tishi
+  - Ma’lumotlar: Ism, familiya, telefon raqami/email, parol, jinsi
+  - So‘rovlar: `POST /users/signup`
+  - Ko‘rsatish: Ro‘yxatdan o‘tish formasi
+
+      3. Foydalanuvchi Tizimga Kirishi
+  - Ma’lumotlar: Telefon raqami/email, parol
+  - So‘rovlar: `POST /users/signin`
+  - Ko‘rsatish: Tizimga kirish formasi
+
+      4. Qarz Olish Faoliyati
+  - Ma’lumotlar: Kitob nomi, qarzga olingan sana, qaytarish muddati
+  - So‘rovlar: `POST /borrowing_activity/add`
+  - Ko‘rsatish: Foydalanuvchi uchun olingan kitoblar ro‘yxatini ko‘rsatish
+
+      5. Kitob Tahlili (Analytics)
+  - So‘rovlar:
+    - `GET /analytics/popular-books`
+    - `GET /analytics/book/:id`
+    - `GET /analytics/available-books`
+  - Ko‘rsatish: Grafiklar va jadval ko‘rinishida mashhur kitoblar va ularning holatlari.
+
+---
+
+     Analytics (Tahlil) So‘rovlar:
+
+1. Mashhur Kitoblar:
+   - `GET /analytics/popular-books` — Haftalik va oylik mashhur kitoblar ro‘yxatini olish.
+
+2. Kitob Tahlili:
+   - `GET /analytics/book/:id` — Har bir kitob uchun qarz olish va qaytarish statistikasi.
+
+3. Mavjud Kitoblar:
+   - `GET /analytics/available-books` — Hozirda mavjud bo‘lgan kitoblar ro‘yxatini olish.
+
+---
+
+     Ushbu Loyiha Uchun Backend Yangi Tizim Talablari:
+- Kitoblar va foydalanuvchilarni boshqarish uchun CRUD (Create, Read, Update, Delete) so‘rovlarini ishlab chiqish.
+- Foydalanuvchi va kitoblar o‘rtasidagi qarz olish faoliyatini kuzatish.
+- Kitoblar statistikasi (analytics) ni saqlash va foydalanuvchiga kerakli tahlillarni taqdim etish.
+
+     Ushbu Loyiha Uchun Frontend Talablari:
+- Foydalanuvchi interfeysida kitoblarni ko‘rsatish va ularni qidirish imkoniyati.
+- Foydalanuvchiga kitobni qarzga olish va qaytarish imkoniyatini berish.
+- Kitoblar va foydalanuvchi faoliyati bo‘yicha analitik ma’lumotlarni ko‘rsatish.
+

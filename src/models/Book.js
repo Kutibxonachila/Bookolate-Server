@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, NOW } from "sequelize";
 import { sequelize } from "../config/db.config";
 
 const Book = sequelize.define("Book", {
@@ -69,6 +69,31 @@ const Book = sequelize.define("Book", {
   returned_date: {
     type: DataTypes.DATE,
     allowNull: true,
+  },
+  isbn: {
+    type: DataTypes.TEXT,
+    unique: true,
+    allowNull: false,
+  },
+  genre: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  publisher: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  pages: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
   },
 });
 

@@ -37,6 +37,14 @@ const UserActivity = sequelize.define("borrowing_activity", {
       return returnDate <= dueDate ? "On Time" : "Overdue";
     },
   },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
 });
 
 export default UserActivity;
