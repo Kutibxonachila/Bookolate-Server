@@ -32,3 +32,5 @@ const AllTimePopular_Book = sequelize.define(
   },
   { timestamps: false }
 );
+
+export default AllTimePopular_Book
