@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config.js";
 
 const BookAnalytics = sequelize.define(
-  "book_activity_analytics",
+  "`book_activity_analytics`",
   {
     id: {
       type: DataTypes.UUID,
