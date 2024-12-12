@@ -57,8 +57,20 @@ const Book = sequelize.define(
     },
     available: {
       type: DataTypes.INTEGER,
-      allowNull: false,
       defaultValue: 1,
+      allowNull: false,
+    },
+    is_subject: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    grade: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // Will be validated in the service.
+    },
+    subject_type: {
+      type: DataTypes.STRING,
+      allowNull: true, // Will be validated in the service.
     },
     loaned_date: {
       type: DataTypes.DATE,
