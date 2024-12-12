@@ -1,4 +1,3 @@
-import { where } from "sequelize";
 import { Book } from "../models/index.js";
 
 export const getAllBook = async () => {
