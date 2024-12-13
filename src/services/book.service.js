@@ -32,6 +32,33 @@ export const getBookByUUID = async (bookId) => {
     throw new Error("Error fetching book by UUID: " + error.message);
   }
 };
+
+export const addBook = async (bookData) => {
+  try {
+    const {
+      title,
+      author,
+      genre,
+      year,
+      total_copies,
+    } = bookData;
+
+    // Create the book
+    const book = await Book.create({
+      title,
+      author,
+      genre,
+      year,
+      total_copies,
+      available: total_copies,
+    });
+
+    return book;
+  } catch (error) {
+    throw new Error("Error adding book: " + error.message);
+  }
+};
+
 export const updateBook = async (bookId, updateData) => {
   try {
     const book = await Book.findByPk(bookId);
