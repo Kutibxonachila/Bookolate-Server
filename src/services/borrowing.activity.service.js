@@ -5,7 +5,7 @@ export const borrowBook = async (userId, bookId) => {
     return await BorrowingActivity.create({
       user_id: userId,
       book_id: bookId,
-      borrow_date: new Date(),
+      due_date: new Date(),
     });
   } catch (error) {
     throw new Error("Error borrowing book: " + error.message);
@@ -24,3 +24,4 @@ export const returnBook = async (userId, bookId) => {
     throw new Error("Error returning book: " + error.message);
   }
 };
+
