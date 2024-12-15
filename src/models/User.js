@@ -22,6 +22,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     gender: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -51,5 +55,4 @@ const User = sequelize.define(
   }
 );
 
-
-export default User
+export default User;
