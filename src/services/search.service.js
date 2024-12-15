@@ -2,7 +2,7 @@ class SearchService {
   constructor(elasticsearchClient) {
     this.client = elasticsearchClient;
   }
-
+  
   async searchIndex(index, query) {
     return await this.client.search({
       index,

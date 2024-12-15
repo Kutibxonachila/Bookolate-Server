@@ -5,7 +5,7 @@ import {
   getBookByQuery,
   getBookByUUID,
   deleteBookByUUID,
-    } from "../services/book.service";
+} from "../services/book.service";
 
 export const FetchAllBook = async (req, res) => {
   try {
