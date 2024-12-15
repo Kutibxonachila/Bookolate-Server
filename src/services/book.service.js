@@ -38,19 +38,35 @@ export const addBook = async (bookData) => {
     const {
       title,
       author,
+      publication_year,
+      language,
+      keywords,
+      description,
+      book_status,
       genre,
       year,
       total_copies,
+      isbn,
+      publisher,
+      pages,
     } = bookData;
 
     // Create the book
     const book = await Book.create({
       title,
       author,
+      publication_year,
+      language,
+      keywords,
+      description,
+      book_status,
       genre,
       year,
       total_copies,
       available: total_copies,
+      isbn,
+      publisher,
+      pages,
     });
 
     return book;
