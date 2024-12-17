@@ -12,7 +12,9 @@ export const registerUser = async (
   gender
 ) => {
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+     const saltRounds = 10;
+     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     return await User.create({
       first_name: firstName,
       last_name: lastName,
@@ -29,17 +31,25 @@ export const registerUser = async (
 };
 
 // Login user service
-export const loginUser = async (phone, password) => {
-  try {
-    const user = await User.findOne({ where: { phone } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new Error("Invalid phone or password");
-    }
-    const token = jwt.sign({ id: user.id }, JWT_SECRET_KEY, {
-      expiresIn: "1h",
-    });
-    return { token, user };
-  } catch (error) {
-    throw new Error("Error logging in: " + error.message);
+export const loginUser = async (loginData) => {
+  const { phone, password } = loginData;
+
+  // Find the user by phone
+  const user = await User.findOne({ phone });
+  if (!user) {
+    throw new Error("User not found");
   }
+
+  // Compare the entered password with the stored hashed password
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Invalid credentials");
+  }
+
+  // Return user details (without password)
+  return {
+    phone: user.phone,
+    first_name: user.first_name,
+    last_name: user.last_name,
+  };
 };

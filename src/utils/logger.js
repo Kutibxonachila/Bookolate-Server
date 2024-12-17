@@ -1,13 +1,13 @@
-import winston, { error } from "winston";
+import winston from "winston";
 
-//COnfigure logger
+// Configure logger
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === "production" ? "info" : "debug",
   format: winston.format.combine(
-    winston.format.timestamp(), //add timestamps
+    winston.format.timestamp(), // Add timestamps
     winston.format.printf(
       ({ level, message, timestamp }) =>
-        `${timestamp}  [${level.toLocaleUpperCase()}] :  ${message}`
+        `${timestamp}  [${level.toUpperCase()}] :  ${message}`
     )
   ),
   transports: [
@@ -16,7 +16,7 @@ const logger = winston.createLogger({
     }),
     new winston.transports.File({
       filename: "../logs/error.log",
-      level: error,
+      level: "error", // Use the string "error"
     }), // Error logs
     new winston.transports.File({
       filename: "../logs/combined.log",

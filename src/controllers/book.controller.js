@@ -1,51 +1,108 @@
 import {
-  DeleteAllBooks,
   getAllBook,
-  updateBook,
   getBookByQuery,
   getBookByUUID,
-  deleteBookByUUID,
+  DeleteAllBooks,
 } from "../services/book.service";
+import redis from "../config/redis.js"; // Importing Redis
 
+// Fetch all books with Redis cache
 export const FetchAllBook = async (req, res) => {
   try {
-    const books = await getAllBook(); // Assuming getAllBooks is your service function
+    const cacheKey = "all_books";
 
-    res
-      .status(200)
-      .json({ success: true, message: "Fetch All Books", data: books });
+    // Check if the data is cached in Redis
+    const cachedBooks = await redis.get(cacheKey);
+
+    if (cachedBooks) {
+      return res.status(200).json({
+        success: true,
+        message: "Fetched all books from cache",
+        data: JSON.parse(cachedBooks),
+      });
+    }
+
+    // If not cached, fetch from DB
+    const books = await getAllBook();
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(books));
+
+    res.status(200).json({
+      success: true,
+      message: "Fetched all books from database",
+      data: books,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 };
 
+// Fetch book by query with Redis cache
 export const getBookByQuery = async (req, res) => {
   try {
-    const { query } = req.query; // Assuming query should be extracted from `req.query`
-    const books = await getBooksByQuery(query); // Rename service function to avoid name conflict
+    const { query } = req.query;
+    const cacheKey = `book_query_${query}`;
 
-    res
-      .status(200)
-      .json({ success: true, message: "Fetch Book By QUERY", data: books });
+    // Check if the data is cached in Redis
+    const cachedBook = await redis.get(cacheKey);
+
+    if (cachedBook) {
+      return res.status(200).json({
+        success: true,
+        message: "Fetched book by query from cache",
+        data: JSON.parse(cachedBook),
+      });
+    }
+
+    // If not cached, fetch from DB
+    const books = await getBookByQuery(query);
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(books));
+
+    res.status(200).json({
+      success: true,
+      message: "Fetched book by query from database",
+      data: books,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 };
 
+// Fetch book by UUID with Redis cache
 export const getBookByUUID = async (req, res) => {
   try {
-    const { bookId } = req.params; // Extract bookId from req.params
+    const { bookId } = req.params;
+    const cacheKey = `book_${bookId}`;
 
-    const book = await getBookByUUID(bookId); // Assuming getBookByUUID is your service function
+    // Check if the data is cached in Redis
+    const cachedBook = await redis.get(cacheKey);
 
-    res
-      .status(200)
-      .json({ success: true, message: "Fetch Book By UUID", data: book });
+    if (cachedBook) {
+      return res.status(200).json({
+        success: true,
+        message: "Fetched book by UUID from cache",
+        data: JSON.parse(cachedBook),
+      });
+    }
+
+    // If not cached, fetch from DB
+    const book = await getBookByUUID(bookId);
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(book));
+
+    res.status(200).json({
+      success: true,
+      message: "Fetched book by UUID from database",
+      data: book,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
 export const addBook = async (req, res) => {
   try {
     const {
@@ -85,13 +142,11 @@ export const addBook = async (req, res) => {
       image, // Save the filename for the uploaded image
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Book added successfully",
-        newData: newBook,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Book added successfully",
+      newData: newBook,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

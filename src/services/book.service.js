@@ -35,45 +35,13 @@ export const getBookByUUID = async (bookId) => {
 
 export const addBook = async (bookData) => {
   try {
-    const {
-      title,
-      author,
-      publication_year,
-      language,
-      keywords,
-      description,
-      book_status,
-      genre,
-      year,
-      total_copies,
-      isbn,
-      publisher,
-      pages,
-    } = bookData;
-
-    // Create the book
-    const book = await Book.create({
-      title,
-      author,
-      publication_year,
-      language,
-      keywords,
-      description,
-      book_status,
-      genre,
-      year,
-      total_copies,
-      available: total_copies,
-      isbn,
-      publisher,
-      pages,
-    });
-
-    return book;
+    const newBook = await Book.create(bookData); // Assuming Book is your ORM model
+    return newBook;
   } catch (error) {
     throw new Error("Error adding book: " + error.message);
   }
 };
+
 
 export const updateBook = async (bookId, updateData) => {
   try {

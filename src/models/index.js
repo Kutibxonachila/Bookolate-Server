@@ -70,7 +70,7 @@ WeeklyPopularBooks.belongsTo(Book, {
   foreignKey: { allowNull: false, name: "book_id" },
 });
 
-export default {
+export {
   Book,
   User,
   UserActivity,
