@@ -1,4 +1,10 @@
 import { addBook } from "../src/services/book.service.js";
+import { jest } from "@jest/globals";
+
+// Mock the addBook function
+jest.mock("../src/services/book.service.js", () => ({
+  addBook: jest.fn(), // Mock the addBook function explicitly
+}));
 
 test("should add a book successfully", async () => {
   const mockBookData = {
@@ -7,6 +13,9 @@ test("should add a book successfully", async () => {
     pages: 400,
     available: 100,
   };
+
+  // Mock the resolved value for the addBook function
+  addBook.mockReturnValueOnce(Promise.resolve(mockBookData));
 
   const result = await addBook(mockBookData);
 

@@ -1,8 +1,8 @@
 import {
   updateBookAnalytics,
   getBookAnalytics,
-} from "./book.activity.analytic.service.js";
-import { BookAnalytics } from "../models/index.js";
+} from "../src/services/book.activity.analytic.service.js";
+import { BookAnalytics } from "../src/models/index.js";
 
 jest.mock("../models/Book.Activiy.Analytc.js"); // Mock the model
 

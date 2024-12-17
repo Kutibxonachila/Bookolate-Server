@@ -9,24 +9,26 @@ test("should user sign up successfully", async () => {
     gender: "Male",
   };
 
+  // Simulate user registration
   const result = await registerUser(mockUserData);
 
   expect(result.first_name).toBe("John");
   expect(result.last_name).toBe("Doe");
   expect(result.phone).toBe("+998995554433");
-  expect(result.password).toBe("YesMyFriend");
   expect(result.gender).toBe("Male");
+  // Do not expect the password to be returned directly for security reasons
+  expect(result.password).not.toBe(mockUserData.password);
 });
 
 test("should user sign in successfully", async () => {
   const mockUserData = {
     phone: "+998995554433",
-    password: "YesMyFriend",
+    password: "YesMyFriend)",
   };
 
+  // Simulate user login
   const result = await loginUser(mockUserData);
 
   expect(result.phone).toBe("+998995554433");
-  expect(result.password).toBe("YesMyFriend");
+  expect(result.password).not.toBe(mockUserData.password); // Ensure password is not directly returned (hashed password should be used)
 });
-

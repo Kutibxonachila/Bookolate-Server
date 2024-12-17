@@ -1,7 +1,9 @@
 import request from "supertest";
 import app from "../src/app.js";
-import { registerUser, loginUser } from "../src/services/auth.service.js";
+import * as authService from "../src/services/auth.service.js"; // Import everything as authService
+import { jest } from "@jest/globals";
 
+// Mock all exports from authService
 jest.mock("../src/services/auth.service.js");
 
 describe("Auth Routes", () => {
@@ -9,16 +11,16 @@ describe("Auth Routes", () => {
   const token = "mocked-jwt-token";
 
   beforeAll(() => {
-    //  the registerUser function
-    registerUser.mockImplementation(async (email, password) => {
+    // Mock the registerUser function using mockImplementationOnce
+    authService.registerUser.mockImplementationOnce(async (email, password) => {
       if (email === "existing@example.com") {
         throw new Error("Email already in use");
       }
       return { token };
     });
 
-    //  the loginUser function
-    loginUser.mockImplementation(async (email, password) => {
+    // Mock the loginUser function using mockImplementationOnce
+    authService.loginUser.mockImplementationOnce(async (email, password) => {
       if (email !== testUser.email || password !== testUser.password) {
         throw new Error("Invalid credentials");
       }
