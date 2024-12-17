@@ -64,8 +64,10 @@ export const addBook = async (req, res) => {
       pages,
     } = req.body;
 
-    const newBook = await addBook({
-      // Assuming addNewBook is your service function
+    // Check if a file was uploaded
+    const image = req.file ? req.file.filename : null;
+
+    const newBook = await addNewBook({
       title,
       author,
       publication_year,
@@ -80,11 +82,16 @@ export const addBook = async (req, res) => {
       isbn,
       publisher,
       pages,
+      image, // Save the filename for the uploaded image
     });
 
     res
       .status(201)
-      .json({ success: true, message: "Added Book", newData: newBook });
+      .json({
+        success: true,
+        message: "Book added successfully",
+        newData: newBook,
+      });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
