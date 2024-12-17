@@ -1,13 +1,26 @@
 import { BookActivity } from "../models/index.js";
 
-export const logBookActivity = async (userId, bookId, action) => {
+// Log book activity
+export const logBookActivity = async (
+  userId,
+  bookId,
+  borrowDate,
+  returnDate,
+  dueDate
+) => {
   try {
-    return await BookActivity.create({
+    // Create a new record in the book_activity table
+    const activity = await BookActivity.create({
       user_id: userId,
       book_id: bookId,
-      action,
-      activity_date: new Date(),
+      borrow_date: borrowDate,
+      return_date: returnDate,
+      due_date: dueDate,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
+
+    return activity;
   } catch (error) {
     throw new Error("Error logging book activity: " + error.message);
   }
