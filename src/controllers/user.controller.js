@@ -2,29 +2,67 @@ import {
   getAllUsers,
   getUserByQuery,
   getUserByUUID,
-  updateUser,
-  deleteUserByUUID,
-  deleteAllUsers,
 } from "../services/user.service.js";
+import redis from "../config/redis.js"; // Importing Redis
 
-// Get all users
+// Get all users with Redis cache
 export const fetchAllUsers = async (req, res) => {
   try {
+    const cacheKey = "all_users";
+
+    // Check if the data is cached in Redis
+    const cachedUsers = await redis.get(cacheKey);
+
+    if (cachedUsers) {
+      return res.status(200).json({
+        message: "Fetched users from cache",
+        data: JSON.parse(cachedUsers),
+      });
+    }
+
+    // If not cached, fetch from DB
     const users = await getAllUsers();
-    res.status(200).json(users);
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(users));
+
+    res.status(200).json({
+      message: "Fetched users from database",
+      data: users,
+    });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching all users", error: error.message });
+      .json({ message: "Error fetching users", error: error.message });
   }
 };
 
-// Get user by query
+// Get user by query with Redis cache
 export const fetchUserByQuery = async (req, res) => {
   try {
     const query = req.query;
+    const cacheKey = `user_query_${JSON.stringify(query)}`;
+
+    // Check if the data is cached in Redis
+    const cachedUser = await redis.get(cacheKey);
+
+    if (cachedUser) {
+      return res.status(200).json({
+        message: "Fetched user by query from cache",
+        data: JSON.parse(cachedUser),
+      });
+    }
+
+    // If not cached, fetch from DB
     const users = await getUserByQuery(query);
-    res.status(200).json(users);
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(users));
+
+    res.status(200).json({
+      message: "Fetched user by query from database",
+      data: users,
+    });
   } catch (error) {
     res
       .status(500)
@@ -32,16 +70,37 @@ export const fetchUserByQuery = async (req, res) => {
   }
 };
 
-// Get user by UUID
+// Get user by UUID with Redis cache
 export const fetchUserByUUID = async (req, res) => {
   try {
     const { id } = req.params;
+    const cacheKey = `user_${id}`;
+
+    // Check if the data is cached in Redis
+    const cachedUser = await redis.get(cacheKey);
+
+    if (cachedUser) {
+      return res.status(200).json({
+        message: "Fetched user by UUID from cache",
+        data: JSON.parse(cachedUser),
+      });
+    }
+
+    // If not cached, fetch from DB
     const user = await getUserByUUID(id);
-    res.status(200).json(user);
+
+    // Cache the result for 1 hour (3600 seconds)
+    await redis.setex(cacheKey, 3600, JSON.stringify(user));
+
+    res.status(200).json({
+      message: "Fetched user by UUID from database",
+      data: user,
+    });
   } catch (error) {
     res.status(404).json({ message: "User not found", error: error.message });
   }
 };
+
 
 // Update user
 export const modifyUser = async (req, res) => {
