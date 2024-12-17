@@ -1,14 +1,14 @@
 import { RedisService } from "../src/services/redis.service.js";
 
-const mockRedisCLient = {
+const mockRedisClient = {
   get: jest.fn(),
   set: jest.fn(),
 };
 
-const redisService = new RedisService(mockRedisCLient);
+const redisService = new RedisService(mockRedisClient);
 
 test("should retrieve a cache value", async () => {
-  mockRedisCLient.get.mockImplementation((key, cb) => {
+  mockRedisClient.get.mockImplementation((key, cb) => {
     cb(
       null,
       JSON.stringify({
@@ -18,6 +18,7 @@ test("should retrieve a cache value", async () => {
       })
     );
   });
+
   const result = await redisService.getValue("book:101");
 
   expect(result).toEqual({
@@ -25,7 +26,8 @@ test("should retrieve a cache value", async () => {
     title: "The Great Gatsby",
     author: "F. Scott Fitzgerald",
   });
-  expect(mockRedisCLient.get).toHaveBeenCalledWith(
+
+  expect(mockRedisClient.get).toHaveBeenCalledWith(
     "book:101",
     expect.any(Function)
   );
