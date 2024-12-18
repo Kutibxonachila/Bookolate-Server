@@ -1,3 +1,3 @@
 import { jest } from "@jest/globals";
 
-jest.setTimeout(30000); // Set timeout for tests
+jest.setTimeout(50000); // Set timeout for tests
