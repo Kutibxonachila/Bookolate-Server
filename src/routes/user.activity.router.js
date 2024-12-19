@@ -1,15 +1,15 @@
- import express from "express";
- import {
-   borrowBookController,
-   returnBookController,
- } from "../controllers/user.activity.controller.js";
+import express from "express";
+import {
+  borrowBookController,
+  returnBookController,
+} from "../controllers/user.activity.controller.js";
 
- const routerUserBorrow = express.Router();
+const routerUserBorrow = express.Router();
 
- // Route for borrowing a book
- router.post("/borrow", borrowBookController);
+// Route for borrowing a book
+router.post("/borrow", borrowBookController);
 
- // Route for returning a book
- routerUserBorrow.post("/return", returnBookController);
+// Route for returning a book
+routerUserBorrow.post("/return", returnBookController);
 
- export default routerUserBorrow;
+export default routerUserBorrow;
