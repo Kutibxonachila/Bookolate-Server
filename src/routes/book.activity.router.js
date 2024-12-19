@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { logActivityController } from "../controllers/book.activity.controller";
+import { logActivityController } from "../controllers/book.activity.controller.js";
 
 const routerBookActivity = Router();
 

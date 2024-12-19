@@ -1,4 +1,4 @@
-import { BookAnalytics } from "../models/Book.Activiy.Analytc.js";
+import BookAnalytics from "../models/Book.Activiy.Analytc.js";
 
 export const updateBookAnalytics = async (analyticsData) => {
   if (!analyticsData || !analyticsData.id) {

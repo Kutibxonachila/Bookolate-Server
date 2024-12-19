@@ -1,4 +1,4 @@
-import SearchService from "../services/search.service";
+import SearchService from "../services/search.service.js";
 
 
 class SearchController {

@@ -7,7 +7,7 @@ import {
 const routerUserBorrow = express.Router();
 
 // Route for borrowing a book
-router.post("/borrow", borrowBookController);
+routerUserBorrow.post("/borrow", borrowBookController);
 
 // Route for returning a book
 routerUserBorrow.post("/return", returnBookController);

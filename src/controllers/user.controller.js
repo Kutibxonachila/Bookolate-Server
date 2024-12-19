@@ -1,5 +1,5 @@
 import {
-  getAllUsers,
+  getAllUser,
   getUserByQuery,
   getUserByUUID,
 } from "../services/user.service.js";
@@ -21,7 +21,7 @@ export const fetchAllUsers = async (req, res) => {
     }
 
     // If not cached, fetch from DB
-    const users = await getAllUsers();
+    const users = await getAllUser();
 
     // Cache the result for 1 hour (3600 seconds)
     await redis.setex(cacheKey, 3600, JSON.stringify(users));

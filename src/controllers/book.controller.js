@@ -4,7 +4,7 @@ import {
   getBookByUUID,
   DeleteAllBooks,
   addBook
-} from "../services/book.service";
+} from "../services/book.service.js";
 import redis from "../config/redis.js"; // Importing Redis
 
 // Fetch all books with Redis cache
@@ -73,7 +73,7 @@ export const BookGetQuery = async (req, res) => {
 };
 
 // Fetch book by UUID with Redis cache
-export const getBookByUUID = async (req, res) => {
+export const getBookUUID = async (req, res) => {
   try {
     const { bookId } = req.params;
     const cacheKey = `book_${bookId}`;
@@ -104,7 +104,7 @@ export const getBookByUUID = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-export const addBook = async (req, res) => {
+export const addNewBook = async (req, res) => {
   try {
     const {
       title,
@@ -187,4 +187,3 @@ export const deleteAllBooks = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
-z

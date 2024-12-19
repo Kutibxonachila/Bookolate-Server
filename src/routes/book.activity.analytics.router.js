@@ -1,12 +1,12 @@
 import { Router } from "express";
 import {
-  getBookAnalytics,
-  updateBookAnalytics,
-} from "../services/book.activity.analytic.service";
+  getBookAnalyticsController,
+  updateBookAnalyticsController,
+} from "../controllers/book.activity.analytics.controller.js";
 
 const routerBookActivityAnalytics = Router();
 
-routerBookActivityAnalytics.put("/update", updateBookAnalytics);
-routerBookActivityAnalytics.get("/get", getBookAnalytics);
+routerBookActivityAnalytics.put("/update", updateBookAnalyticsController);
+routerBookActivityAnalytics.get("/get", getBookAnalyticsController);
 
 export default routerBookActivityAnalytics;

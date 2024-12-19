@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   fetchAllTimePopularBooks,
   updateBookPopularity,
-} from "../controllers/alltime.popular.book.controller";
+} from "../controllers/alltime.popular.book.controller.js";
 
 const routerAllTimePopularBook = Router();
 

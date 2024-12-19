@@ -1,5 +1,5 @@
-import BorrowingActivity from "../models/BorrowingActivity.js";
-import Book from "../models/index.js";
+import BorrowingActivity from "../models/Borrowing.Activuty.js";
+import {Book} from "../models/index.js";
 
 export const borrowBook = async (userId, bookId) => {
   const book = await Book.findByPk(bookId);

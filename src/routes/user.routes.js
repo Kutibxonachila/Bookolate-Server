@@ -1,4 +1,4 @@
- import express from "express";
+import express from "express";
 import {
   fetchAllUsers,
   fetchUserByQuery,
@@ -8,24 +8,24 @@ import {
   removeAllUsers,
 } from "../controllers/user.controller.js";
 
-const router = express.Router();
+const routerUser = express.Router();
 
 // Get all users
-router.get("/users", fetchAllUsers);
+routerUser.get("/users", fetchAllUsers);
 
 // Get user by query (e.g., ?name=John)
-router.get("/users/query", fetchUserByQuery);
+routerUser.get("/users/query", fetchUserByQuery);
 
 // Get user by UUID
-router.get("/users/:id", fetchUserByUUID);
+routerUser.get("/users/:id", fetchUserByUUID);
 
 // Update user
-router.put("/users/:id", modifyUser);
+routerUser.put("/users/:id", modifyUser);
 
 // Delete user by UUID
-router.delete("/users/:id", removeUserByUUID);
+routerUser.delete("/users/:id", removeUserByUUID);
 
 // Delete all users
-router.delete("/users", removeAllUsers);
+routerUser.delete("/users", removeAllUsers);
 
-export default router;
+export default routerUser;
