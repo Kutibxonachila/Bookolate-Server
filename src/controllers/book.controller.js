@@ -3,6 +3,7 @@ import {
   getBookByQuery,
   getBookByUUID,
   DeleteAllBooks,
+  addBook
 } from "../services/book.service";
 import redis from "../config/redis.js"; // Importing Redis
 
@@ -39,7 +40,7 @@ export const FetchAllBook = async (req, res) => {
 };
 
 // Fetch book by query with Redis cache
-export const getBookByQuery = async (req, res) => {
+export const BookGetQuery = async (req, res) => {
   try {
     const { query } = req.query;
     const cacheKey = `book_query_${query}`;
@@ -124,7 +125,7 @@ export const addBook = async (req, res) => {
     // Check if a file was uploaded
     const image = req.file ? req.file.filename : null;
 
-    const newBook = await addNewBook({
+    const newBook = await addBook({
       title,
       author,
       publication_year,
@@ -186,3 +187,4 @@ export const deleteAllBooks = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+z
