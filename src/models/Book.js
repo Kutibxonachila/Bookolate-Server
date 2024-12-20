@@ -121,3 +121,6 @@ Book.addHook("beforeSave", async (book) => {
   // Update read count
   book.readed_count = borrowedCount;
 });
+
+
+export default Book;
