@@ -58,8 +58,13 @@ BorrowingActivity.belongsTo(User, {
 Book.hasMany(BorrowingActivity, {
   foreignKey: { allowNull: false, name: "book_id" },
 });
+BorrowingActivity.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user",
+});
 BorrowingActivity.belongsTo(Book, {
-  foreignKey: { allowNull: false, name: "book_id" },
+  foreignKey: "book_id",
+  as: "book",
 });
 
 // Book and Weekly Popular Books

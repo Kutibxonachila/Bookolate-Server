@@ -96,31 +96,38 @@ const Book = sequelize.define(
 );
 
 Book.addHook("beforeSave", async (book) => {
-  // Set book status based on loaned_date
   if (book.loaned_date) {
-    book.book_status = "On Loan"; // Fixed typo from "book_satus" to "book_status"
+    // Set book on loan
+    book.book_status = "On Loan";
   } else {
+    // Otherwise, set book status to "Available"
     book.book_status = "Available";
   }
 
-  // Assume there's an association for borrowing activities, e.g., `BorrowingActivity`
-  const borrowedActivities = await book.getBorrowingActivities(); // Ensure this association exists
-  const borrowedCount = borrowedActivities.length;
+  // If the book is overdue and not returned, change the status
+  const overdueBooks = await book.getBorrowingActivities();
+  overdueBooks.forEach((activity) => {
+    if (!activity.return_date && activity.due_date < new Date()) {
+      book.book_status = "Not Returned";
+    }
+  });
 
-  // Calculate available books (total_books must be defined in your model or derived elsewhere)
-  if (book.total_books !== undefined) {
-    book.available = Math.max(book.total_books - borrowedCount, 0); // Ensure availability can't be negative
-  }
+  // Adjust the available count based on the loaned books
+  const borrowedCount = await book.getBorrowingActivities();
+  book.available = book.total_books - borrowedCount.length;
 
-  // Calculate missing_books (overdue and not returned)
-  const missingCount = borrowedActivities.filter(
+  // Update missing_books based on overdue counts
+  const missingCount = borrowedCount.filter(
     (activity) => !activity.returned_date && activity.due_date < new Date()
-  ).length;
-  book.missing_books = missingCount;
+  );
 
-  // Update read count
-  book.readed_count = borrowedCount;
+  book.missing_books = missingCount.length;
+
+  // Update readed_count if necessary
+  book.readed_count = borrowedCount.length;
 });
+
+
 
 
 export default Book;
