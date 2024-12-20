@@ -1,0 +1,29 @@
+# GET request to retrieve a book by ID
+# GET http://localhost:4055/book/all_book HTTP/1.1
+# Accept: application/json
+
+# POST request to add a new book
+POST http://localhost:4055/book/ HTTP/1.1
+Content-Type: application/json
+
+{
+    
+  "title": "Book Title",
+  "author": "Author Name",
+  "isbn": "123-4567890123",
+  "publishedDate": "2023-10-01"
+}
+
+# PUT request to update an existing book by ID
+# PUT http://localhost:3000/books/{id}
+# Content-Type: application/json
+# 
+# {
+#   "title": "Updated Book Title",
+#   "author": "Updated Author Name",
+#   "isbn": "123-4567890123",
+#   "publishedDate": "2023-10-01"
+# }
+
+# DELETE request to remove a book by ID
+# DELETE http://localhost:3000/books/{id}

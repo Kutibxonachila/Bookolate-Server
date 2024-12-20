@@ -1,12 +1,11 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config.js";
-
 const Book = sequelize.define(
   "Book",
   {
     id: {
-      type: DataTypes.UUIDV4(),
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4, // Sequelize will handle UUIDv4 generation
       primaryKey: true,
       allowNull: false,
     },
@@ -34,10 +33,10 @@ const Book = sequelize.define(
       allowNull: false,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT, // Better for long text
       allowNull: false,
     },
-    book_satus: {
+    book_status: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "Available",
@@ -60,18 +59,6 @@ const Book = sequelize.define(
       defaultValue: 1,
       allowNull: false,
     },
-    is_subject: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    grade: {
-      type: DataTypes.INTEGER,
-      allowNull: true, // Will be validated in the service.
-    },
-    subject_type: {
-      type: DataTypes.STRING,
-      allowNull: true, // Will be validated in the service.
-    },
     loaned_date: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -85,7 +72,7 @@ const Book = sequelize.define(
       allowNull: true,
     },
     isbn: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       unique: true,
       allowNull: false,
     },
@@ -101,17 +88,13 @@ const Book = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
   },
-  { timestamps: false }
+  {
+    timestamps: true, // Automatically handles createdAt and updatedAt
+    tableName: "Book",
+  }
 );
+
 
 // Hook auto update fiealds
 Book.addHook("beforeSave", async (book) => {

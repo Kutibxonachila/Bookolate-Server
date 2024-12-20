@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
+import cors from "cors";
 import { errorHandler } from "./middlewares/errorHanlder.js";
 import routerAllTimePopularBook from "./routes/alltime.popular.book.router.js";
 import routerAuth from "./routes/auth.router.js";
@@ -13,13 +14,13 @@ import routerUserBorrow from "./routes/user.activity.router.js";
 import routerUser from "./routes/user.routes.js";
 import routerWeeklyPopular from "./routes/weekly.popular.book.router.js";
 
-async function app() {
+const createApp = () => {
   const app = express();
 
   // Middleware
   app.use(bodyParser.json());
-  app.use(express.json());
   app.use(morgan("dev"));
+  app.use(cors());
   app.use(errorHandler);
 
   // Routes
@@ -30,14 +31,21 @@ async function app() {
   app.use("/book", routerBook);
   app.use("/borrowing", routerBorrow);
   app.use("/search", routerSearch);
-  app.use("/user/activity",routerUserBorrow);
-  app.use("/user",routerUser);
-  app.use("/weekly",routerWeeklyPopular)
+  app.use("/user/activity", routerUserBorrow);
+  app.use("/user", routerUser);
+  app.use("/weekly", routerWeeklyPopular);
 
-  //Handle 404 errors
-  app.use((req, res, next) => {
-    res.status(404).json({ success: false, message: "Resource not found" });
+  app.get("/ping", (req, res) => {
+    res.send("pong");
   });
-}
 
-export default app;
+  // Error handling middleware
+  app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send("Something went wrong!");
+  });
+
+  return app; // Return the Express app instance
+};
+
+export default createApp;

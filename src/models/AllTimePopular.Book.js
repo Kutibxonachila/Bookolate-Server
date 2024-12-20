@@ -6,12 +6,19 @@ const AllTimePopular_Book = sequelize.define(
   {
     id: {
       type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4, // Sequelize will automatically generate UUIDv4
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
     },
     book_id: {
-      type: DataTypes.UUIDV4(),
+      type: DataTypes.UUID, // Use UUID, not UUIDV4
       allowNull: false,
+      references: {
+        model: "Book",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
     title: {
       type: DataTypes.STRING,

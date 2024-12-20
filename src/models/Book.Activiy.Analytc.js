@@ -6,8 +6,9 @@ const BookAnalytics = sequelize.define(
   {
     id: {
       type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4, // Sequelize will automatically generate UUIDv4
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
     },
     total_borrowed_books: {
       type: DataTypes.BIGINT,

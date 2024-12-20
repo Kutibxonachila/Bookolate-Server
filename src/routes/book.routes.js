@@ -14,8 +14,8 @@ const routerBook = Router();
 
 routerBook.get("/all_book", FetchAllBook);
 routerBook.get("/books", BookGetQuery);
-routerBook.get("/book/:id", getBookUUID);
-routerBook.post("/book", upload.single("image"), addNewBook);
+routerBook.get("/:id", getBookUUID);
+routerBook.post("/", upload.single("image"), addNewBook);
 routerBook.put("/update/:id", upload.single("image"), updateBook);
 routerBook.delete("/delete/:id", deleteBookByUUID);
 routerBook.delete("/delete", deleteAllBooks);

@@ -4,9 +4,12 @@ export const getAllBook = async () => {
   try {
     const books = await Book.findAll();
 
+    // Convert sequelize models to plain objects
+    // const booksData = books.map((book) => book.toJSON());
+
     return books;
   } catch (error) {
-    throw new Error("Error fetching book's data : " + error.message);
+    throw new Error("Error fetching book's data: " + error.message);
   }
 };
 
@@ -41,7 +44,6 @@ export const addBook = async (bookData) => {
     throw new Error("Error adding book: " + error.message);
   }
 };
-
 
 export const updateBook = async (bookId, updateData) => {
   try {
