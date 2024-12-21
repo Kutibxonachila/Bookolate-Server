@@ -5,7 +5,6 @@ import {
 } from "../services/user.service.js";
 import redis from "../config/redis.js"; // Importing Redis
 
-// Get all users with Redis cache
 export const fetchAllUsers = async (req, res) => {
   try {
     const cacheKey = "all_users";
@@ -23,8 +22,9 @@ export const fetchAllUsers = async (req, res) => {
     // If not cached, fetch from DB
     const users = await getAllUser();
 
-    // Cache the result for 1 hour (3600 seconds)
-    await redis.setex(cacheKey, 3600, JSON.stringify(users));
+    // Cache the result with a 1-hour expiration
+    await redis.set(cacheKey, JSON.stringify(users));
+    await redis.expire(cacheKey, 3600); // Set expiration separately
 
     res.status(200).json({
       message: "Fetched users from database",
@@ -100,7 +100,6 @@ export const fetchUserByUUID = async (req, res) => {
     res.status(404).json({ message: "User not found", error: error.message });
   }
 };
-
 
 // Update user
 export const modifyUser = async (req, res) => {
