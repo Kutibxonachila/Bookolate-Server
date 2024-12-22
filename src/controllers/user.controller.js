@@ -57,7 +57,8 @@ export const fetchUserByQuery = async (req, res) => {
     const users = await getUserByQuery(query);
 
     // Cache the result for 1 hour (3600 seconds)
-    await redis.setex(cacheKey, 3600, JSON.stringify(users));
+    await redis.set(cacheKey, JSON.stringify(users));
+    await redis.expire(cacheKey, 3600); // Set expiration time separately
 
     res.status(200).json({
       message: "Fetched user by query from database",
@@ -90,7 +91,8 @@ export const fetchUserByUUID = async (req, res) => {
     const user = await getUserByUUID(id);
 
     // Cache the result for 1 hour (3600 seconds)
-    await redis.setex(cacheKey, 3600, JSON.stringify(user));
+    await redis.set(cacheKey, JSON.stringify(user));
+    await redis.expire(cacheKey, 3600); // Set expiration time separately
 
     res.status(200).json({
       message: "Fetched user by UUID from database",
@@ -100,6 +102,7 @@ export const fetchUserByUUID = async (req, res) => {
     res.status(404).json({ message: "User not found", error: error.message });
   }
 };
+
 
 // Update user
 export const modifyUser = async (req, res) => {

@@ -1,5 +1,5 @@
 import { User } from "../models/index.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js";
 
@@ -15,7 +15,6 @@ export const registerUser = async (
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    
     return await User.create({
       first_name: firstName,
       last_name: lastName,

@@ -34,6 +34,7 @@ export async function FetchAllBook(req, res) {
     res.status(500).send("Error fetching books");
   }
 }
+
 // Fetch book by query with Redis cache
 export const BookGetQuery = async (req, res) => {
   try {
@@ -99,6 +100,8 @@ export const getBookUUID = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+// Add new book
 export const addNewBook = async (req, res) => {
   try {
     const {
@@ -110,32 +113,88 @@ export const addNewBook = async (req, res) => {
       description,
       book_status,
       genre,
-      year,
       total_copies,
       isbn,
       publisher,
       pages,
     } = req.body;
 
-    // Check if a file was uploaded
-    const image = req.file ? req.file.filename : null;
+    // Validate total_copies and pages
+    if (!total_copies || isNaN(total_copies)) {
+      return res.status(400).json({
+        success: false,
+        error: "Total copies must be a valid number.",
+      });
+    }
 
+    if (!pages || isNaN(pages)) {
+      return res.status(400).json({
+        success: false,
+        error: "Pages must be a valid number.",
+      });
+    }
+
+    // Convert total_copies and pages to integers
+    const totalCopiesInt = parseInt(total_copies, 10);
+    const pagesInt = parseInt(pages, 10);
+
+    console.log("Parsed total_copies:", totalCopiesInt);
+    console.log("Parsed pages:", pagesInt);
+
+    // Parse keywords array if needed
+    let keywordsArray = [];
+    if (keywords) {
+      if (typeof keywords === "string") {
+        try {
+          keywordsArray = JSON.parse(keywords);
+          if (!Array.isArray(keywordsArray)) {
+            throw new Error("Keywords should be an array.");
+          }
+        } catch (e) {
+          return res.status(400).json({
+            success: false,
+            error: "Invalid keywords format. It should be an array of strings.",
+          });
+        }
+      } else if (Array.isArray(keywords)) {
+        keywordsArray = keywords;
+      }
+    }
+
+    console.log("Adding new book with data:", {
+      title,
+      author,
+      publication_year,
+      language,
+      keywords: keywordsArray,
+      description,
+      book_status,
+      genre,
+      total_copies: totalCopiesInt,
+      available: totalCopiesInt,
+      isbn,
+      publisher,
+      pages: pagesInt,
+      image: req.file ? req.file.filename : null,
+    });
+
+    // Add the book to the database
     const newBook = await addBook({
       title,
       author,
       publication_year,
       language,
-      keywords,
+      keywords: keywordsArray,
       description,
       book_status,
       genre,
-      year,
-      total_copies,
-      available: total_copies,
+      year: undefined,
+      total_copies: totalCopiesInt,
+      available: totalCopiesInt,
       isbn,
       publisher,
-      pages,
-      image, // Save the filename for the uploaded image
+      pages: pagesInt,
+      image: req.file ? req.file.filename : null,
     });
 
     res.status(201).json({
@@ -144,10 +203,13 @@ export const addNewBook = async (req, res) => {
       newData: newBook,
     });
   } catch (error) {
+    console.error("Error adding book:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
 
+
+// Update book
 export const updateBook = async (req, res) => {
   try {
     const { bookId } = req.params;
@@ -161,6 +223,7 @@ export const updateBook = async (req, res) => {
   }
 };
 
+// Delete book by UUID
 export const deleteBookByUUID = async (req, res) => {
   try {
     const { bookId } = req.params;
@@ -173,6 +236,7 @@ export const deleteBookByUUID = async (req, res) => {
   }
 };
 
+// Delete all books
 export const deleteAllBooks = async (req, res) => {
   try {
     const result = await DeleteAllBooks(Book);

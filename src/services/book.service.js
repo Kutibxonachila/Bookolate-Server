@@ -1,80 +1,112 @@
 import { Book } from "../models/index.js";
 
+// Fetch all books
 export const getAllBook = async () => {
   try {
     const books = await Book.findAll();
 
-    // Convert sequelize models to plain objects
-    // const booksData = books.map((book) => book.toJSON());
+    // Convert sequelize models to plain objects manually
+    const booksData = [];
+    for (let book of books) {
+      booksData.push(book.get({ plain: true }));
+    }
 
-    return books;
+    return booksData;
   } catch (error) {
-    throw new Error("Error fetching book's data: " + error.message);
+    throw new Error("Error fetching books data: " + error.message);
   }
 };
 
+// Fetch books by query
 export const getBookByQuery = async (query) => {
   try {
     const books = await Book.findAll({
       where: query,
     });
 
-    return books;
+    if (!books.length) {
+      throw new Error("No books found for the given query.");
+    }
+
+    // Convert sequelize models to plain objects manually
+    const booksData = [];
+    for (let book of books) {
+      booksData.push(book.get({ plain: true }));
+    }
+
+    return booksData;
   } catch (error) {
-    throw new Error("Error fetching book's data by QUERY:  " + error.message);
+    throw new Error("Error fetching books data by query: " + error.message);
   }
 };
 
+// Fetch a book by its UUID
 export const getBookByUUID = async (bookId) => {
   try {
     const book = await Book.findByPk(bookId);
-    if (!book) throw new Error("Book is not found");
 
-    return book;
+    if (!book) {
+      throw new Error(`Book with ID ${bookId} not found.`);
+    }
+
+    return book.get({ plain: true });
   } catch (error) {
     throw new Error("Error fetching book by UUID: " + error.message);
   }
 };
 
+// Add a new book
 export const addBook = async (bookData) => {
   try {
-    const newBook = await Book.create(bookData); // Assuming Book is your ORM model
-    return newBook;
+    // Ensure 'keywords' is an array
+    if (Array.isArray(bookData.keywords) === false) {
+      throw new Error("Keywords should be an array");
+    }
+
+    // Validate other fields if needed (e.g., publication year should be a number)
+    if (isNaN(bookData.publication_year)) {
+      throw new Error("Publication year should be a number");
+    }
+
+    // Create the new book record
+    const newBook = await Book.create(bookData);
+
+    return newBook.get({ plain: true });
   } catch (error) {
     throw new Error("Error adding book: " + error.message);
   }
 };
 
+
+// Update book
 export const updateBook = async (bookId, updateData) => {
   try {
     const book = await Book.findByPk(bookId);
-    if (!book) throw new Error("Book is not found");
-    if (book.id !== bookId)
-      throw new Error("You can update only your own account");
-
+    if (!book) throw new Error("Book not found");
+    
     await book.update(updateData);
   } catch (error) {
     throw new Error("Error updating book : " + error.message);
   }
 };
+
+// Delete book by UUID
 export const deleteBookByUUID = async (bookId) => {
   try {
     const book = await Book.findByPk(bookId);
 
     if (!book) {
-      throw new Error("book not found!");
+      throw new Error("Book not found!");
     }
 
-    if (book.id !== bookId)
-      throw new Error("You can delete only your own account");
-
     await book.destroy();
-    return { success: true, message: "book deleted successfully." };
+    return { success: true, message: "Book deleted successfully." };
   } catch (error) {
     throw new Error("Error deleting book by UUID: " + error.message);
   }
 };
 
+// Delete all books
 export const DeleteAllBooks = async (Model) => {
   try {
     await Model.destroy({
@@ -84,6 +116,6 @@ export const DeleteAllBooks = async (Model) => {
 
     return { success: true, message: "All data deleted successfully." };
   } catch (error) {
-    throw new Error("Error deleting book by UUID: " + error.message);
+    throw new Error("Error deleting all books: " + error.message);
   }
 };

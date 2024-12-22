@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config.js";
+import BorrowingActivity from "./Borrowing.Activuty.js";
 const Book = sequelize.define(
   "Book",
   {
@@ -33,7 +34,7 @@ const Book = sequelize.define(
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT, // Better for long text
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     book_status: {
@@ -56,8 +57,11 @@ const Book = sequelize.define(
     },
     available: {
       type: DataTypes.INTEGER,
-      defaultValue: 1,
       allowNull: false,
+      validate: {
+        isInt: true,
+        min: 1,
+      },
     },
     loaned_date: {
       type: DataTypes.DATE,
@@ -87,47 +91,56 @@ const Book = sequelize.define(
     pages: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: true,
+        min: 1,
+      },
     },
   },
   {
     timestamps: true, // Automatically handles createdAt and updatedAt
     tableName: "Book",
+    underscored: true,
   }
 );
 
-Book.addHook("beforeSave", async (book) => {
-  if (book.loaned_date) {
-    // Set book on loan
-    book.book_status = "On Loan";
-  } else {
-    // Otherwise, set book status to "Available"
-    book.book_status = "Available";
-  }
+Book.addHook("beforeSave", async (book, options) => {
+  try {
+    if (book.loaned_date) {
+      // Set book on loan
+      book.book_status = "On Loan";
+    } else {
+      // Otherwise, set book status to "Available"
+      book.book_status = "Available";
+    }
 
-  // If the book is overdue and not returned, change the status
-  const overdueBooks = await book.getBorrowingActivities();
-  overdueBooks.forEach((activity) => {
-    if (!activity.return_date && activity.due_date < new Date()) {
+    // Fetch borrowing activities related to this book
+    const borrowingActivities = await BorrowingActivity.findAll({
+      where: { book_id: book.id },
+    });
+
+    // If the book is overdue and not returned, change the status
+    const overdueBooks = borrowingActivities.filter(
+      (activity) => !activity.return_date && activity.due_date < new Date()
+    );
+    if (overdueBooks.length > 0) {
       book.book_status = "Not Returned";
     }
-  });
 
-  // Adjust the available count based on the loaned books
-  const borrowedCount = await book.getBorrowingActivities();
-  book.available = book.total_books - borrowedCount.length;
+    // Adjust the available count based on the loaned books
+    const borrowedCount = borrowingActivities.length;
+    book.available = book.total_books - borrowedCount;
 
-  // Update missing_books based on overdue counts
-  const missingCount = borrowedCount.filter(
-    (activity) => !activity.returned_date && activity.due_date < new Date()
-  );
+    // Update missing_books based on overdue counts
+    const missingCount = overdueBooks.length;
+    book.missing_books = missingCount;
 
-  book.missing_books = missingCount.length;
-
-  // Update readed_count if necessary
-  book.readed_count = borrowedCount.length;
+    // Update readed_count
+    book.readed_count = borrowedCount;
+  } catch (error) {
+    console.error("Error in beforeSave hook:", error);
+    throw new Error("Error processing book status.");
+  }
 });
-
-
-
 
 export default Book;
