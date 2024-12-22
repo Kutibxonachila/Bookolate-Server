@@ -113,35 +113,37 @@ export const addNewBook = async (req, res) => {
       description,
       book_status,
       genre,
-      total_copies,
       isbn,
       publisher,
       pages,
+      available,
     } = req.body;
 
-    // Validate total_copies and pages
-    if (!total_copies || isNaN(total_copies)) {
+    // Debugging: Log the incoming 'available' value
+    console.log("Received available:", available);
+
+    // Ensure 'available' is parsed correctly as an integer
+    const availableCount = parseInt(available, 10);
+    if (isNaN(availableCount)) {
+      console.error("Invalid available value:", available);
       return res.status(400).json({
         success: false,
-        error: "Total copies must be a valid number.",
+        error: "'Available' must be a valid number.",
       });
     }
 
-    if (!pages || isNaN(pages)) {
+    // Validate and parse other fields (publication_year, pages, etc.)
+    const publicationYear = parseInt(publication_year, 10);
+    const pagesCount = parseInt(pages, 10);
+
+    if (isNaN(publicationYear) || isNaN(pagesCount)) {
       return res.status(400).json({
         success: false,
-        error: "Pages must be a valid number.",
+        error: "Publication year and pages must be valid numbers.",
       });
     }
 
-    // Convert total_copies and pages to integers
-    const totalCopiesInt = parseInt(total_copies, 10);
-    const pagesInt = parseInt(pages, 10);
-
-    console.log("Parsed total_copies:", totalCopiesInt);
-    console.log("Parsed pages:", pagesInt);
-
-    // Parse keywords array if needed
+    // Handle keywords (array or JSON string)
     let keywordsArray = [];
     if (keywords) {
       if (typeof keywords === "string") {
@@ -161,52 +163,44 @@ export const addNewBook = async (req, res) => {
       }
     }
 
-    console.log("Adding new book with data:", {
-      title,
-      author,
-      publication_year,
-      language,
-      keywords: keywordsArray,
-      description,
-      book_status,
-      genre,
-      total_copies: totalCopiesInt,
-      available: totalCopiesInt,
-      isbn,
-      publisher,
-      pages: pagesInt,
-      image: req.file ? req.file.filename : null,
-    });
+    // Optional: Image handling (assuming you have a file upload)
+    const image = req.file ? req.file.filename : null;
 
-    // Add the book to the database
-    const newBook = await addBook({
+    // Create the book data object
+    const bookData = {
       title,
       author,
-      publication_year,
+      publication_year: publicationYear,
       language,
       keywords: keywordsArray,
       description,
       book_status,
       genre,
-      year: undefined,
-      total_copies: totalCopiesInt,
-      available: totalCopiesInt,
       isbn,
       publisher,
-      pages: pagesInt,
-      image: req.file ? req.file.filename : null,
-    });
+      pages: pagesCount,
+      available: availableCount,
+      image, // If no image, it will be null
+    };
+
+    // Add book to the database
+    const newBook = await addBook(bookData);
 
     res.status(201).json({
       success: true,
-      message: "Book added successfully",
+      message: "Book added successfully.",
       newData: newBook,
     });
   } catch (error) {
     console.error("Error adding book:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
+
+
 
 
 // Update book

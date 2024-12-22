@@ -22,6 +22,7 @@ const createApp = () => {
   app.use(morgan("dev"));
   app.use(cors());
   app.use(errorHandler);
+  app.use(express.static("public")); // Serves files from the 'public' folder
 
   // Routes
   app.use("/alltime_popular", routerAllTimePopularBook);

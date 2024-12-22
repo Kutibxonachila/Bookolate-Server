@@ -1,4 +1,6 @@
-export const errorHandler = (req, res, err, next) => {
+export const errorHandler = (err, req, res, next) => {
+  console.error("Error Handler:", err); // Log the error for debugging
+
   if (err.name === "ValidationError") {
     return res
       .status(400)
@@ -9,11 +11,9 @@ export const errorHandler = (req, res, err, next) => {
   if (err.name === "JsonWebTokenError")
     return res.status(401).json({ success: false, message: "Invalid Token" });
 
-  // Handle any other errors (generic 500 Internal Server Error)
+  // Generic error handler
   return res.status(500).json({
     success: false,
-    message: err || "Hmmm Something went wrong!",
+    message: err.message || "Hmmm Something went wrong!",
   });
 };
-
-

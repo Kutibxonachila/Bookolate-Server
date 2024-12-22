@@ -7,11 +7,19 @@ POST http://localhost:4055/book/ HTTP/1.1
 Content-Type: application/json
 
 {
-    
-  "title": "Book Title",
-  "author": "Author Name",
-  "isbn": "123-4567890123",
-  "publishedDate": "2023-10-01"
+  "image": "#95227192-088a-46f7-825e-9687776ae797#",
+  "title": "Test Kitob",
+  "author": "Elon Musk",
+  "publication_year": 2024,
+  "language": "uzbek",
+  "keywords": "[\"historic\", \"fantastic\", \"uzbek\", \"asia\"]",
+  "description": "this is test book",
+  "book_status": "Available",
+  "genre": "historic",
+  "available": 100,
+  "isbn": 877654,
+  "publisher": "KitobSpace",
+  "pages": 500
 }
 
 # PUT request to update an existing book by ID

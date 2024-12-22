@@ -56,6 +56,7 @@ export const getBookByUUID = async (bookId) => {
 };
 
 // Add a new book
+
 export const addBook = async (bookData) => {
   try {
     // Ensure 'keywords' is an array
@@ -68,6 +69,11 @@ export const addBook = async (bookData) => {
       throw new Error("Publication year should be a number");
     }
 
+    // Ensure the 'available' field is a valid number (not NaN)
+    if (isNaN(bookData.available)) {
+      throw new Error("Available field should be a valid number");
+    }
+
     // Create the new book record
     const newBook = await Book.create(bookData);
 
@@ -77,13 +83,12 @@ export const addBook = async (bookData) => {
   }
 };
 
-
 // Update book
 export const updateBook = async (bookId, updateData) => {
   try {
     const book = await Book.findByPk(bookId);
     if (!book) throw new Error("Book not found");
-    
+
     await book.update(updateData);
   } catch (error) {
     throw new Error("Error updating book : " + error.message);
