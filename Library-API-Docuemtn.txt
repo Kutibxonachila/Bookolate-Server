@@ -5,6 +5,10 @@ Ushbu loyiha kutubxonalar va maktablar uchun kitoblarni boshqarish tizimi yarati
 
 ---
 
+
+
+
+
 Backend Yangi Yaratilishi Kerak Bo‘lgan Jadval va So‘rovlar:
 
      1. Kitoblar Jadvali (`book`)
