@@ -45,6 +45,9 @@ const createApp = () => {
     res.status(500).send("Something went wrong!");
   });
 
+  app.get("/", (req, res) => {
+    res.send("Welcome!");
+  });
   return app; // Return the Express app instance
 };
 
