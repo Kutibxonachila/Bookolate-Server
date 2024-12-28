@@ -25,7 +25,7 @@ const Book = sequelize.define(
     publication_year: {
       type: DataTypes.NUMERIC,
       allowNull: false,
-      defaultValue: DataTypes.NOW,
+      defaultValue: DataTypes.DATE,
     },
     language: {
       type: DataTypes.STRING,
@@ -63,6 +63,7 @@ const Book = sequelize.define(
       validate: {
         min: 1, // This will ensure the total_copies is a positive NUMERIC
       },
+      defaultValue: 1,
     },
     loaned_date: {
       type: DataTypes.DATE,

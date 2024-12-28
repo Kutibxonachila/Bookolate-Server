@@ -7,7 +7,7 @@ import {
 } from "../services/book.service.js";
 import redis from "../config/redis.js"; // Importing Redis
 import redisClient from "../config/redis.js";
-import { generateError } from "../utils/index.js";
+// import convertToNumber from "../utils/convertNumber.js";
 
 // Fetch all books with Redis cache
 export async function FetchAllBook(req, res) {
@@ -107,6 +107,7 @@ export const addNewBook = async (req, res) => {
   try {
     console.log(req.body);
 
+    // Destructure request body
     const {
       title,
       author,
@@ -122,12 +123,12 @@ export const addNewBook = async (req, res) => {
       pages,
     } = req.body;
 
-    // Convert numeric fields explicitly
-    const publicationYear = parseInt(publication_year, 10);
-    const availableCopies = parseInt(available, 10);
-    const pageCount = parseInt(pages, 10);
+    // Convert numeric fields using convertToNumber
+    const publicationYear = convertToNumber(publication_year);
+    const availableCopies = convertToNumber(available);
+    const pageCount = convertToNumber(pages);
 
-    if (isNaN(publicationYear) || isNaN(availableCopies) || isNaN(pageCount)) {
+    if (!publicationYear || !availableCopies || !pageCount) {
       return res.status(400).json({
         error:
           "Invalid numeric values for publication_year, available, or pages.",
@@ -136,13 +137,11 @@ export const addNewBook = async (req, res) => {
 
     // Parse keywords into an array if it's a JSON string
     const processedKeywords =
-      typeof keywords === "string" ? JSON.parse(keywords) : [];
+      typeof keywords === "string" ? JSON.parse(keywords) : keywords || [];
 
-    const imageUrl = req.file ? req.file.path : null;
-
-    // Create the book object
+    // Create book object
     const newBook = {
-      image: imageUrl,
+      image: req.file?.path || null,
       title,
       author,
       publication_year: publicationYear,
@@ -156,6 +155,8 @@ export const addNewBook = async (req, res) => {
       publisher,
       pages: pageCount,
     };
+
+    console.log(newBook);
 
     // Simulate saving to the database
     const savedBook = await addBook(newBook);
@@ -171,6 +172,13 @@ export const addNewBook = async (req, res) => {
     });
   }
 };
+
+// Helper function to convert strings to numbers
+const convertToNumber = (value) => {
+  const number = parseInt(value, 10);
+  return isNaN(number) ? null : number;
+};
+
 
 
 // Update book
