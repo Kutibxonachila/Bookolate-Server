@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        .book,
+        form {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error,
+        .success {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+            background-color: #fdd;
+        }
+
+        .success {
+            color: green;
+            background-color: #dfd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Book App</h1>
+
+    <div id="book-list"></div>
+    <p id="error-message" class="error"></p>
+
+    <h2>Add a New Book</h2>
+    <form id="book-form">
+        <label for="image">Image URL</label>
+        <input type="file" id="image" name="image" required>
+
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="author">Author</label>
+        <input type="text" id="author" name="author" required>
+
+        <label for="publication_year">Publication Year</label>
+        <input type="number" id="publication_year" name="publication_year" required>
+
+        <label for="language">Language</label>
+        <input type="text" id="language" name="language" required>
+
+        <label for="keywords">Keywords (comma-separated)</label>
+        <input type="text" id="keywords" name="keywords" required>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="book_status">Status</label>
+        <input type="text" id="book_status" name="book_status" value="Available" required>
+
+        <label for="available">Available Copies</label>
+        <input type="number" id="available" name="available" required>
+
+        <label for="isbn">ISBN</label>
+        <input type="text" id="isbn" name="isbn" required>
+
+        <label for="genre">Genre</label>
+        <input type="text" id="genre" name="genre" required>
+
+        <label for="publisher">Publisher</label>
+        <input type="text" id="publisher" name="publisher" value="KitobSpace" required>
+
+        <label for="pages">Pages</label>
+        <input type="number" id="pages" name="pages" required>
+
+        <button type="submit">Add Book</button>
+    </form>
+    <p id="form-message" class="success"></p>
+
+<script>
+    async function fetchBooks() {
+        const bookList = document.getElementById('book-list');
+        const errorMessage = document.getElementById('error-message');
+        try {
+            bookList.innerHTML = '';
+            errorMessage.textContent = '';
+            const response = await fetch('http://localhost:4055/book/all_book');
+            if (!response.ok) throw new Error(`Error: ${response.status} ${response.statusText}`);
+            const books = await response.json();
+            if (books.length === 0) {
+                bookList.innerHTML = '<p>No books available</p>';
+                return;
+            }
+            books.forEach(book => {
+                const bookDiv = document.createElement('div');
+                bookDiv.className = 'book';
+                bookDiv.innerHTML = `
+                    <strong>${book.title}</strong> by ${book.author} <br>
+                    <em>${book.genre}</em> (${book.language}) - ${book.pages} pages
+                `;
+                bookList.appendChild(bookDiv);
+            });
+        } catch (error) {
+            errorMessage.textContent = `Failed to load books: ${error.message}`;
+        }
+    }
+
+    document.getElementById('book-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const formMessage = document.getElementById('form-message');
+        const errorMessage = document.getElementById('error-message');
+        try {
+            formMessage.textContent = '';
+            errorMessage.textContent = '';
+            const formData = new FormData(e.target);
+
+            // Manually handle numeric conversions
+            const publicationYear = parseInt(formData.get('publication_year').trim(), 10);
+            const availableCopies = parseInt(formData.get('available').trim(), 10);
+            const pages = parseInt(formData.get('pages').trim(), 10);
+
+            // Validate numeric inputs
+            if (isNaN(publicationYear)) throw new Error("Invalid publication year.");
+            if (isNaN(availableCopies)) throw new Error("Invalid available copies.");
+            if (isNaN(pages)) throw new Error("Invalid pages.");
+
+            // Update FormData with numeric values
+            formData.set('publication_year', publicationYear);
+            formData.set('available', availableCopies);
+            formData.set('pages', pages);
+
+            // Process keywords to be a string
+            const keywords = formData.get('keywords').split(',').map(kw => kw.trim()).join(',');
+            formData.set('keywords', keywords);
+
+            // Send FormData to the server
+            const response = await fetch('http://localhost:4055/book', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error: ${response.status} ${response.statusText}`);
+            }
+
+            formMessage.textContent = 'Book added successfully!';
+            fetchBooks();
+            e.target.reset();
+        } catch (error) {
+            errorMessage.textContent = `Failed to add book: ${error.message}`;
+        }
+    });
+
+    fetchBooks();
+</script>
+
+</body>
+
+</html>

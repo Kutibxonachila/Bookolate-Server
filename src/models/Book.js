@@ -11,7 +11,7 @@ const Book = sequelize.define(
       allowNull: false,
     },
     image: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     title: {
@@ -23,11 +23,13 @@ const Book = sequelize.define(
       allowNull: false,
     },
     publication_year: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.NUMERIC,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
     language: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     keywords: {
       type: DataTypes.ARRAY(DataTypes.STRING),
@@ -46,21 +48,20 @@ const Book = sequelize.define(
       },
     },
     readed_count: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.NUMERIC,
       allowNull: false,
       defaultValue: 0,
     },
     missing_books: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.NUMERIC,
       allowNull: false,
       defaultValue: 0,
     },
     available: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.NUMERIC,
       allowNull: false,
       validate: {
-        isInt: true,
-        min: 1,
+        min: 1, // This will ensure the total_copies is a positive NUMERIC
       },
     },
     loaned_date: {
@@ -87,10 +88,12 @@ const Book = sequelize.define(
     publisher: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "KitobSpace",
     },
     pages: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.NUMERIC,
       allowNull: false,
+      defaultValue: 1,
       validate: {
         isInt: true,
         min: 1,

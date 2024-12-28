@@ -1,5 +1,5 @@
 import { Book } from "../models/index.js";
-
+import { generateError } from "../utils/index.js";
 // Fetch all books
 export const getAllBook = async () => {
   try {
@@ -56,32 +56,18 @@ export const getBookByUUID = async (bookId) => {
 };
 
 // Add a new book
-
 export const addBook = async (bookData) => {
   try {
-    // Ensure 'keywords' is an array
-    if (Array.isArray(bookData.keywords) === false) {
-      throw new Error("Keywords should be an array");
-    }
-
-    // Validate other fields if needed (e.g., publication year should be a number)
-    if (isNaN(bookData.publication_year)) {
-      throw new Error("Publication year should be a number");
-    }
-
-    // Ensure the 'available' field is a valid number (not NaN)
-    if (isNaN(bookData.available)) {
-      throw new Error("Available field should be a valid number");
-    }
-
-    // Create the new book record
+    // Ensure bookData doesn't have "cgue2e"
     const newBook = await Book.create(bookData);
-
-    return newBook.get({ plain: true });
+    return newBook;
   } catch (error) {
     throw new Error("Error adding book: " + error.message);
   }
 };
+
+
+
 
 // Update book
 export const updateBook = async (bookId, updateData) => {

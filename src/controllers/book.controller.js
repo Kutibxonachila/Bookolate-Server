@@ -7,6 +7,7 @@ import {
 } from "../services/book.service.js";
 import redis from "../config/redis.js"; // Importing Redis
 import redisClient from "../config/redis.js";
+import { generateError } from "../utils/index.js";
 
 // Fetch all books with Redis cache
 export async function FetchAllBook(req, res) {
@@ -104,6 +105,8 @@ export const getBookUUID = async (req, res) => {
 // Add new book
 export const addNewBook = async (req, res) => {
   try {
+    console.log(req.body);
+
     const {
       title,
       author,
@@ -112,95 +115,62 @@ export const addNewBook = async (req, res) => {
       keywords,
       description,
       book_status,
-      genre,
+      available,
       isbn,
+      genre,
       publisher,
       pages,
-      available,
     } = req.body;
 
-    // Debugging: Log the incoming 'available' value
-    console.log("Received available:", available);
-
-    // Ensure 'available' is parsed correctly as an integer
-    const availableCount = parseInt(available, 10);
-    if (isNaN(availableCount)) {
-      console.error("Invalid available value:", available);
-      return res.status(400).json({
-        success: false,
-        error: "'Available' must be a valid number.",
-      });
-    }
-
-    // Validate and parse other fields (publication_year, pages, etc.)
+    // Convert numeric fields explicitly
     const publicationYear = parseInt(publication_year, 10);
-    const pagesCount = parseInt(pages, 10);
+    const availableCopies = parseInt(available, 10);
+    const pageCount = parseInt(pages, 10);
 
-    if (isNaN(publicationYear) || isNaN(pagesCount)) {
+    if (isNaN(publicationYear) || isNaN(availableCopies) || isNaN(pageCount)) {
       return res.status(400).json({
-        success: false,
-        error: "Publication year and pages must be valid numbers.",
+        error:
+          "Invalid numeric values for publication_year, available, or pages.",
       });
     }
 
-    // Handle keywords (array or JSON string)
-    let keywordsArray = [];
-    if (keywords) {
-      if (typeof keywords === "string") {
-        try {
-          keywordsArray = JSON.parse(keywords);
-          if (!Array.isArray(keywordsArray)) {
-            throw new Error("Keywords should be an array.");
-          }
-        } catch (e) {
-          return res.status(400).json({
-            success: false,
-            error: "Invalid keywords format. It should be an array of strings.",
-          });
-        }
-      } else if (Array.isArray(keywords)) {
-        keywordsArray = keywords;
-      }
-    }
+    // Parse keywords into an array if it's a JSON string
+    const processedKeywords =
+      typeof keywords === "string" ? JSON.parse(keywords) : [];
 
-    // Optional: Image handling (assuming you have a file upload)
-    const image = req.file ? req.file.filename : null;
+    const imageUrl = req.file ? req.file.path : null;
 
-    // Create the book data object
-    const bookData = {
+    // Create the book object
+    const newBook = {
+      image: imageUrl,
       title,
       author,
       publication_year: publicationYear,
       language,
-      keywords: keywordsArray,
+      keywords: processedKeywords,
       description,
       book_status,
-      genre,
+      available: availableCopies,
       isbn,
+      genre,
       publisher,
-      pages: pagesCount,
-      available: availableCount,
-      image, // If no image, it will be null
+      pages: pageCount,
     };
 
-    // Add book to the database
-    const newBook = await addBook(bookData);
+    // Simulate saving to the database
+    const savedBook = await addBook(newBook);
 
-    res.status(201).json({
-      success: true,
-      message: "Book added successfully.",
-      newData: newBook,
+    return res.status(201).json({
+      message: "Book added successfully!",
+      book: savedBook,
     });
   } catch (error) {
     console.error("Error adding book:", error);
     res.status(500).json({
-      success: false,
-      error: error.message,
+      error: `An unexpected error occurred while adding the book: ${error.message}`,
     });
   }
 };
-
-
 
 
 // Update book
