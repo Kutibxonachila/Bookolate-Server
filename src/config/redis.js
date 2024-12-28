@@ -1,12 +1,7 @@
 import { createClient } from "redis"; // Correct import for node-redis v4+
 
 // Create Redis client with IPv4 address explicitly
-const client = createClient({
-  socket: {
-    host: "127.0.0.1", // Explicitly use IPv4 loopback address
-    port: 6379, // Redis default port
-  },
-});
+const client = createClient("rediss://default:********@romantic-spider-53216.upstash.io:6379");
 
 // Log errors
 client.on("error", (err) => {
