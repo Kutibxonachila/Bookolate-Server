@@ -1,7 +1,9 @@
 import { createClient } from "redis"; // Correct import for node-redis v4+
 
-// Create Redis client with IPv4 address explicitly
-const client = createClient("rediss://default:Ac_gAAIjcDEwYjNlOTRjNTExMDY0NzUwODIzMTAyMDk5MDM0N2Q0ZXAxMA@romantic-spider-53216.upstash.io:6379");
+// Create Redis client with the URL in the correct format
+const client = createClient({
+  url: "rediss://default:Ac_gAAIjcDEwYjNlOTRjNTExMDY0NzUwODIzMTAyMDk5MDM0N2Q0ZXAxMA@romantic-spider-53216.upstash.io:6379"
+});
 
 // Log errors
 client.on("error", (err) => {
