@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis"; // Upstash Redis SDK
 
 // Node-Redis client setup
 const client = createClient({
-  url: "rediss://default:Ac_gAAIjcDEwYjNlOTRjNTExMDY0NzUwODIzMTAyMDk5MDM0N2Q0ZXAxMA@romantic-spider-53216.upstash.io:6379"
+  url: "rediss://default:Ac_gAAIjcDEwYjNlOTRjNTExMDY0NzUwODIzMTAyMDk5MDM0N2Q0ZXAxMA@romantic-spider-53216.upstash.io:6379",
 });
 
 client.on("error", (err) => {

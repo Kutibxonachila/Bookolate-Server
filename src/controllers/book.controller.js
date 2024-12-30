@@ -105,7 +105,7 @@ export const getBookUUID = async (req, res) => {
 // Add new book
 export const addNewBook = async (req, res) => {
   try {
-    console.log(req.body);
+    console.log("First log: " + req.body);
 
     // Destructure request body
     const {
@@ -123,12 +123,25 @@ export const addNewBook = async (req, res) => {
       pages,
     } = req.body;
 
+    // Basic input validation
+    if (!title || !author) {
+      return res.status(400).json({ error: "Title and author are required." });
+    }
+
     // Convert numeric fields using convertToNumber
     const publicationYear = convertToNumber(publication_year);
     const availableCopies = convertToNumber(available);
     const pageCount = convertToNumber(pages);
 
-    if (!publicationYear || !availableCopies || !pageCount) {
+    // Validate numeric fields
+    if (
+      isNaN(publicationYear) ||
+      isNaN(availableCopies) ||
+      isNaN(pageCount) ||
+      publicationYear <= 0 ||
+      availableCopies < 0 ||
+      pageCount <= 0
+    ) {
       return res.status(400).json({
         error:
           "Invalid numeric values for publication_year, available, or pages.",
@@ -139,9 +152,15 @@ export const addNewBook = async (req, res) => {
     const processedKeywords =
       typeof keywords === "string" ? JSON.parse(keywords) : keywords || [];
 
+    if (!publication_year || !available || !pages) {
+      return res.status(400).json({
+        error: "Publication year, available copies, and pages are required.",
+      });
+    }
+    const imagePath = (await req.file?.path) || req.body.image;
     // Create book object
     const newBook = {
-      image: req.file?.path || null,
+      image: imagePath,
       title,
       author,
       publication_year: publicationYear,
@@ -155,8 +174,7 @@ export const addNewBook = async (req, res) => {
       publisher,
       pages: pageCount,
     };
-
-    console.log(newBook);
+    console.log("Second log:  " + newBook);
 
     // Simulate saving to the database
     const savedBook = await addBook(newBook);
@@ -178,8 +196,6 @@ const convertToNumber = (value) => {
   const number = parseInt(value, 10);
   return isNaN(number) ? null : number;
 };
-
-
 
 // Update book
 export const updateBook = async (req, res) => {
