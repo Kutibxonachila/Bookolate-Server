@@ -35,12 +35,19 @@ export async function FetchAllBook(req, res) {
     res.status(500).send("Error fetching books");
   }
 }
-
 // Fetch book by query with Redis cache
 export const BookGetQuery = async (req, res) => {
   try {
     const { query } = req.query;
-    const cacheKey = `book_query_${query}`;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Query parameter is required",
+      });
+    }
+
+    const cacheKey = `book_query_${query.trim().toLowerCase()}`;
 
     // Check if the data is cached in Redis
     const cachedBook = await redis.get(cacheKey);
@@ -56,6 +63,13 @@ export const BookGetQuery = async (req, res) => {
     // If not cached, fetch from DB
     const books = await getBookByQuery(query);
 
+    if (!books || books.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No books found for the given query",
+      });
+    }
+
     // Cache the result for 1 hour (3600 seconds)
     await redis.setex(cacheKey, 3600, JSON.stringify(books));
 
@@ -65,7 +79,12 @@ export const BookGetQuery = async (req, res) => {
       data: books,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Error fetching book by query:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching books",
+      error: error.message,
+    });
   }
 };
 
@@ -73,7 +92,15 @@ export const BookGetQuery = async (req, res) => {
 export const getBookUUID = async (req, res) => {
   try {
     const { bookId } = req.params;
-    const cacheKey = `book_${bookId}`;
+
+    if (!bookId) {
+      return res.status(400).json({
+        success: false,
+        message: "Book ID is required",
+      });
+    }
+
+    const cacheKey = `book_${bookId.trim()}`;
 
     // Check if the data is cached in Redis
     const cachedBook = await redis.get(cacheKey);
@@ -89,6 +116,13 @@ export const getBookUUID = async (req, res) => {
     // If not cached, fetch from DB
     const book = await getBookByUUID(bookId);
 
+    if (!book) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+      });
+    }
+
     // Cache the result for 1 hour (3600 seconds)
     await redis.setex(cacheKey, 3600, JSON.stringify(book));
 
@@ -98,7 +132,12 @@ export const getBookUUID = async (req, res) => {
       data: book,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Error fetching book by UUID:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the book",
+      error: error.message,
+    });
   }
 };
 
