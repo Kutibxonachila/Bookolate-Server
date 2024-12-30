@@ -18,21 +18,19 @@ export const getAllBook = async () => {
 };
 
 // Fetch books by query
+// Fetch books by query
 export const getBookByQuery = async (query) => {
   try {
     const books = await Book.findAll({
       where: query,
     });
 
-    if (!books.length) {
-      throw new Error("No books found for the given query.");
+    if (!Array.isArray(books) || books.length === 0) {
+      throw new Error("No books found matching the query criteria.");
     }
 
     // Convert sequelize models to plain objects manually
-    const booksData = [];
-    for (let book of books) {
-      booksData.push(book.get({ plain: true }));
-    }
+    const booksData = books.map(book => book.get({ plain: true }));
 
     return booksData;
   } catch (error) {
@@ -43,6 +41,11 @@ export const getBookByQuery = async (query) => {
 // Fetch a book by its UUID
 export const getBookByUUID = async (bookId) => {
   try {
+    // Validate UUID format (optional but recommended)
+    if (!bookId || !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(bookId)) {
+      throw new Error("Invalid UUID format.");
+    }
+
     const book = await Book.findByPk(bookId);
 
     if (!book) {
@@ -54,6 +57,7 @@ export const getBookByUUID = async (bookId) => {
     throw new Error("Error fetching book by UUID: " + error.message);
   }
 };
+
 
 // Add a new book
 export const addBook = async (bookData) => {

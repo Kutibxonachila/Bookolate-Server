@@ -14,10 +14,10 @@ const routerBook = Router();
 
 routerBook.get("/all_book", FetchAllBook);
 routerBook.get("/books", BookGetQuery);
-routerBook.get("/:id", getBookUUID);
+routerBook.get("/:bookId", getBookUUID);
 routerBook.post("/", upload.single("image"), addNewBook);
-routerBook.put("/update/:id", upload.single("image"), updateBook);
-routerBook.delete("/delete/:id", deleteBookByUUID);
+routerBook.put("/update/:bookId", upload.single("image"), updateBook);
+routerBook.delete("/delete/:bookId", deleteBookByUUID);
 routerBook.delete("/delete", deleteAllBooks);
 
 export default routerBook;

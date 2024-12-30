@@ -36,6 +36,7 @@ export async function FetchAllBook(req, res) {
   }
 }
 // Fetch book by query with Redis cache
+// Fetch book by query without Redis cache
 export const BookGetQuery = async (req, res) => {
   try {
     const { query } = req.query;
@@ -47,20 +48,7 @@ export const BookGetQuery = async (req, res) => {
       });
     }
 
-    const cacheKey = `book_query_${query.trim().toLowerCase()}`;
-
-    // Check if the data is cached in Redis
-    const cachedBook = await redis.get(cacheKey);
-
-    if (cachedBook) {
-      return res.status(200).json({
-        success: true,
-        message: "Fetched book by query from cache",
-        data: JSON.parse(cachedBook),
-      });
-    }
-
-    // If not cached, fetch from DB
+    // Fetch from DB
     const books = await getBookByQuery(query);
 
     if (!books || books.length === 0) {
@@ -69,9 +57,6 @@ export const BookGetQuery = async (req, res) => {
         message: "No books found for the given query",
       });
     }
-
-    // Cache the result for 1 hour (3600 seconds)
-    await redis.setex(cacheKey, 3600, JSON.stringify(books));
 
     res.status(200).json({
       success: true,
@@ -88,7 +73,7 @@ export const BookGetQuery = async (req, res) => {
   }
 };
 
-// Fetch book by UUID with Redis cache
+// Fetch book by UUID without Redis cache
 export const getBookUUID = async (req, res) => {
   try {
     const { bookId } = req.params;
@@ -100,20 +85,7 @@ export const getBookUUID = async (req, res) => {
       });
     }
 
-    const cacheKey = `book_${bookId.trim()}`;
-
-    // Check if the data is cached in Redis
-    const cachedBook = await redis.get(cacheKey);
-
-    if (cachedBook) {
-      return res.status(200).json({
-        success: true,
-        message: "Fetched book by UUID from cache",
-        data: JSON.parse(cachedBook),
-      });
-    }
-
-    // If not cached, fetch from DB
+    // Fetch from DB
     const book = await getBookByUUID(bookId);
 
     if (!book) {
@@ -122,9 +94,6 @@ export const getBookUUID = async (req, res) => {
         message: "Book not found",
       });
     }
-
-    // Cache the result for 1 hour (3600 seconds)
-    await redis.setex(cacheKey, 3600, JSON.stringify(book));
 
     res.status(200).json({
       success: true,
@@ -140,6 +109,7 @@ export const getBookUUID = async (req, res) => {
     });
   }
 };
+
 
 // Add new book
 export const addNewBook = async (req, res) => {
