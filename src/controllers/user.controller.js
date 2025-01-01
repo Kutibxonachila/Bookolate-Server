@@ -4,6 +4,9 @@ import {
   getUserByUUID,
 } from "../services/user.service.js";
 import redis from "../config/redis.js"; // Importing Redis
+import jwt from "jsonwebtoken";
+import "dotenv/config";
+
 
 export const fetchAllUsers = async (req, res) => {
   try {
@@ -13,14 +16,33 @@ export const fetchAllUsers = async (req, res) => {
     const cachedUsers = await redis.get(cacheKey);
 
     if (cachedUsers) {
+      const usersWithTokens = JSON.parse(cachedUsers).map((user) => ({
+        ...user,
+        token: jwt.sign(
+          { id: user.id, phone: user.phone },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1h" }
+        ),
+      }));
+
       return res.status(200).json({
         message: "Fetched users from cache",
-        data: JSON.parse(cachedUsers),
+        data: usersWithTokens,
       });
     }
 
     // If not cached, fetch from DB
     const users = await getAllUser();
+
+    // Add tokens to each user
+    const usersWithTokens = users.map((user) => ({
+      ...user,
+      token: jwt.sign(
+        { id: user.id, phone: user.phone },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "1h" }
+      ),
+    }));
 
     // Cache the result with a 1-hour expiration
     await redis.set(cacheKey, JSON.stringify(users));
@@ -28,7 +50,7 @@ export const fetchAllUsers = async (req, res) => {
 
     res.status(200).json({
       message: "Fetched users from database",
-      data: users,
+      data: usersWithTokens,
     });
   } catch (error) {
     res
@@ -47,14 +69,32 @@ export const fetchUserByQuery = async (req, res) => {
     const cachedUser = await redis.get(cacheKey);
 
     if (cachedUser) {
+      const userWithToken = JSON.parse(cachedUser).map((user) => ({
+        ...user,
+        token: jwt.sign(
+          { id: user.id, phone: user.phone },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1h" }
+        ),
+      }));
+
       return res.status(200).json({
         message: "Fetched user by query from cache",
-        data: JSON.parse(cachedUser),
+        data: userWithToken,
       });
     }
 
     // If not cached, fetch from DB
     const users = await getUserByQuery(query);
+
+    const usersWithTokens = users.map((user) => ({
+      ...user,
+      token: jwt.sign(
+        { id: user.id, phone: user.phone },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      ),
+    }));
 
     // Cache the result for 1 hour (3600 seconds)
     await redis.set(cacheKey, JSON.stringify(users));
@@ -62,7 +102,7 @@ export const fetchUserByQuery = async (req, res) => {
 
     res.status(200).json({
       message: "Fetched user by query from database",
-      data: users,
+      data: usersWithTokens,
     });
   } catch (error) {
     res
@@ -81,14 +121,37 @@ export const fetchUserByUUID = async (req, res) => {
     const cachedUser = await redis.get(cacheKey);
 
     if (cachedUser) {
+      const user = JSON.parse(cachedUser);
+      const userWithToken = {
+        ...user,
+        token: jwt.sign(
+          { id: user.id, phone: user.phone },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1h" }
+        ),
+      };
+
       return res.status(200).json({
         message: "Fetched user by UUID from cache",
-        data: JSON.parse(cachedUser),
+        data: userWithToken,
       });
     }
 
     // If not cached, fetch from DB
     const user = await getUserByUUID(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userWithToken = {
+      ...user,
+      token: jwt.sign(
+        { id: user.id, phone: user.phone },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      ),
+    };
 
     // Cache the result for 1 hour (3600 seconds)
     await redis.set(cacheKey, JSON.stringify(user));
@@ -96,13 +159,14 @@ export const fetchUserByUUID = async (req, res) => {
 
     res.status(200).json({
       message: "Fetched user by UUID from database",
-      data: user,
+      data: userWithToken,
     });
   } catch (error) {
-    res.status(404).json({ message: "User not found", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching user by UUID", error: error.message });
   }
 };
-
 
 // Update user
 export const modifyUser = async (req, res) => {
