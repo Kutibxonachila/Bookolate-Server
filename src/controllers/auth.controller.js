@@ -54,6 +54,8 @@ export const registerController = async (req, res) => {
 // Login user controller
 export const loginController = async (req, res) => {
   try {
+    console.log(req.body);
+
     const { phone, password } = req.body;
 
     // Validate required fields
@@ -63,13 +65,16 @@ export const loginController = async (req, res) => {
         .json({ message: "Phone and password are required" });
     }
 
-    const { token, user } = await loginUser(phone, password);
+    // Pass the data as an object to the service function
+    const { token, user } = await loginUser({ phone, password });
     res.status(200).json({
       message: "Login successful",
       token,
       user,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(401).json({
       message: error.message,
     });

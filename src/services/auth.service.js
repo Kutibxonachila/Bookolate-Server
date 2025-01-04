@@ -44,7 +44,7 @@ export const loginUser = async (loginData) => {
       throw new Error("User not found");
     }
 
-    // Compare the entered password with the stored hashed password
+    // Compare the entered plaintext password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new Error("Invalid credentials");
@@ -74,3 +74,4 @@ export const loginUser = async (loginData) => {
     throw new Error("Error logging in: " + error.message);
   }
 };
+
