@@ -22,9 +22,14 @@ export const getUserByQuery = async (query) => {
 
 export const getUserByUUID = async (userId) => {
   try {
+    console.log("Searching for user with ID:", userId);
     const user = await User.findByPk(userId);
 
-    if (!user) throw new Error("User is not found");
+    console.log("Fetched User:", user);
+
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
 
     return user;
   } catch (error) {
@@ -32,17 +37,20 @@ export const getUserByUUID = async (userId) => {
   }
 };
 
+
 export const UpdateUser = async (userId, updatedData) => {
   try {
+    // Fetch the user by primary key
     const user = await User.findByPk(userId);
 
-    if (!user) throw new Error("User is not found");
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-    if (user.id !== userId) throw new Error("You can update your own account");
-
+    // Update the user with the provided data
     await user.update(updatedData);
 
-    return user;
+    return user.toJSON(); // Convert Sequelize instance to plain object
   } catch (error) {
     throw new Error("Error updating user: " + error.message);
   }

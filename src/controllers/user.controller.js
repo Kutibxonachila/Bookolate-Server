@@ -1,12 +1,14 @@
 import {
+  DeleteAllUser,
+  deleteUserByUUID,
   getAllUser,
   getUserByQuery,
   getUserByUUID,
+  UpdateUser,
 } from "../services/user.service.js";
 import redis from "../config/redis.js"; // Importing Redis
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-
 
 export const fetchAllUsers = async (req, res) => {
   try {
@@ -111,76 +113,71 @@ export const fetchUserByQuery = async (req, res) => {
   }
 };
 
-// Get user by UUID with Redis cache
+  // Get user by UUID with Redis cache
 export const fetchUserByUUID = async (req, res) => {
   try {
     const { id } = req.params;
-    const cacheKey = `user_${id}`;
+    console.log("Fetching user for ID:", id);
 
-    // Check if the data is cached in Redis
+    // Check Redis cache
+    const cacheKey = `user_${id}`;
     const cachedUser = await redis.get(cacheKey);
 
     if (cachedUser) {
       const user = JSON.parse(cachedUser);
-      const userWithToken = {
-        ...user,
-        token: jwt.sign(
-          { id: user.id, phone: user.phone },
-          process.env.JWT_SECRET_KEY,
-          { expiresIn: "1h" }
-        ),
-      };
-
       return res.status(200).json({
         message: "Fetched user by UUID from cache",
-        data: userWithToken,
+        data: user,
       });
     }
 
-    // If not cached, fetch from DB
+    // Fetch from DB
     const user = await getUserByUUID(id);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const userWithToken = {
-      ...user,
-      token: jwt.sign(
-        { id: user.id, phone: user.phone },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      ),
-    };
-
-    // Cache the result for 1 hour (3600 seconds)
-    await redis.set(cacheKey, JSON.stringify(user));
-    await redis.expire(cacheKey, 3600); // Set expiration time separately
+    // Cache the result
+    await redis.set(cacheKey, JSON.stringify(user.toJSON()));
+    await redis.expire(cacheKey, 3600);
 
     res.status(200).json({
       message: "Fetched user by UUID from database",
-      data: userWithToken,
+      data: user.toJSON(),
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching user by UUID", error: error.message });
+    console.error("Error fetching user by UUID:", error.message);
+    res.status(500).json({
+      message: "Error fetching user by UUID",
+      error: error.message,
+    });
   }
 };
+
+
 
 // Update user
 export const modifyUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params; // Using descriptive parameter name
     const updatedData = req.body;
-    const user = await updateUser(id, updatedData);
-    res.status(200).json({ message: "User updated successfully", user });
+
+    if (!userId || Object.keys(updatedData).length === 0) {
+      return res.status(400).json({ message: "Invalid request" });
+    }
+
+    // Call the service to update user
+    const updatedUser = await UpdateUser(userId, updatedData);
+
+    res.status(200).json({
+      message: "User updated successfully",
+      data: updatedUser,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error updating user", error: error.message });
+    res.status(500).json({
+      message: "Error updating user",
+      error: error.message,
+    });
   }
 };
+
 
 // Delete user by UUID
 export const removeUserByUUID = async (req, res) => {
@@ -198,7 +195,7 @@ export const removeUserByUUID = async (req, res) => {
 // Delete all users
 export const removeAllUsers = async (req, res) => {
   try {
-    const result = await deleteAllUsers();
+    const result = await DeleteAllUser();
     res.status(200).json(result);
   } catch (error) {
     res

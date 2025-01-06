@@ -16,11 +16,12 @@ routerUser.get("/users", fetchAllUsers);
 // Get user by query (e.g., ?name=John)
 routerUser.get("/users/query", fetchUserByQuery);
 
-// Get user by UUID
+// Get user by UUID 
 routerUser.get("/users/:id", fetchUserByUUID);
 
 // Update user
-routerUser.put("/users/:id", modifyUser);
+routerUser.patch("/users/:userId", modifyUser);
+routerUser.put("/users/:userId", modifyUser);
 
 // Delete user by UUID
 routerUser.delete("/users/:id", removeUserByUUID);
