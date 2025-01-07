@@ -111,10 +111,18 @@ export const getBookUUID = async (req, res) => {
 };
 
 
-// Add new book
+const convertToNumber = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return NaN; // Explicitly return NaN for invalid values
+  }
+  const number = parseInt(value, 10);
+  return isNaN(number) ? NaN : number; // Return NaN if the value is not a valid number
+};
+
+// Controller function to add a new book
 export const addNewBook = async (req, res) => {
   try {
-    console.log("First log: " + req.body);
+    console.log(req.body);
 
     // Destructure request body
     const {
@@ -137,36 +145,31 @@ export const addNewBook = async (req, res) => {
       return res.status(400).json({ error: "Title and author are required." });
     }
 
-    // Convert numeric fields using convertToNumber
+    // Convert numeric fields
     const publicationYear = convertToNumber(publication_year);
     const availableCopies = convertToNumber(available);
     const pageCount = convertToNumber(pages);
 
     // Validate numeric fields
-    if (
-      isNaN(publicationYear) ||
-      isNaN(availableCopies) ||
-      isNaN(pageCount) ||
-      publicationYear <= 0 ||
-      availableCopies < 0 ||
-      pageCount <= 0
-    ) {
+    if (isNaN(publicationYear) || isNaN(availableCopies) || isNaN(pageCount)) {
       return res.status(400).json({
         error:
-          "Invalid numeric values for publication_year, available, or pages.",
+          "Invalid numeric values for publication_year, available, or pages. Ensure all are valid integers.",
       });
     }
 
-    // Parse keywords into an array if it's a JSON string
-    const processedKeywords =
-      typeof keywords === "string" ? JSON.parse(keywords) : keywords || [];
-
-    if (!publication_year || !available || !pages) {
-      return res.status(400).json({
-        error: "Publication year, available copies, and pages are required.",
-      });
+    // Parse keywords safely
+    let processedKeywords = [];
+    try {
+      processedKeywords =
+        typeof keywords === "string" ? JSON.parse(keywords) : keywords || [];
+    } catch (parseError) {
+      return res.status(400).json({ error: "Invalid keywords format." });
     }
-    const imagePath = (await req.file?.path) || req.body.image;
+
+    // Handle image path
+    const imagePath = req.file?.path || req.body.image || "";
+
     // Create book object
     const newBook = {
       image: imagePath,
@@ -183,9 +186,10 @@ export const addNewBook = async (req, res) => {
       publisher,
       pages: pageCount,
     };
-    console.log("Second log:  " + newBook);
 
-    // Simulate saving to the database
+    console.log("Second log: ", newBook);
+
+    // Save to database
     const savedBook = await addBook(newBook);
 
     return res.status(201).json({
@@ -198,12 +202,6 @@ export const addNewBook = async (req, res) => {
       error: `An unexpected error occurred while adding the book: ${error.message}`,
     });
   }
-};
-
-// Helper function to convert strings to numbers
-const convertToNumber = (value) => {
-  const number = parseInt(value, 10);
-  return isNaN(number) ? null : number;
 };
 
 // Update book

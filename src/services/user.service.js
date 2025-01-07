@@ -11,14 +11,14 @@ export const getAllUser = async () => {
 
 export const getUserByQuery = async (query) => {
   try {
-    const users = await User.findAll({
-      where: query,
-    });
+    const users = await User.findAll({ where: query });
     return users;
   } catch (error) {
-    throw new Error("Error fetching users by query: " + error.message);
+    console.error("Service Error:", error.message);
+    throw new Error("Error fetching users by query");
   }
 };
+
 
 export const getUserByUUID = async (userId) => {
   try {

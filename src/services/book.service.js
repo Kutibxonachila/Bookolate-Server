@@ -17,7 +17,7 @@ export const getAllBook = async () => {
   }
 };
 
-// Fetch books by query
+
 // Fetch books by query
 export const getBookByQuery = async (query) => {
   try {
@@ -41,15 +41,21 @@ export const getBookByQuery = async (query) => {
 // Fetch a book by its UUID
 export const getBookByUUID = async (bookId) => {
   try {
-    // Validate UUID format (optional but recommended)
-    if (!bookId || !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(bookId)) {
+    // Validate UUID format
+    if (
+      !bookId ||
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        bookId
+      )
+    ) {
       throw new Error("Invalid UUID format.");
     }
 
+    // Assuming `Book` is your Sequelize model
     const book = await Book.findByPk(bookId);
 
     if (!book) {
-      throw new Error(`Book with ID ${bookId} not found.`);
+      return null; // Return null if book not found
     }
 
     return book.get({ plain: true });
@@ -59,18 +65,16 @@ export const getBookByUUID = async (bookId) => {
 };
 
 
+
 // Add a new book
 export const addBook = async (bookData) => {
   try {
-    // Ensure bookData doesn't have "cgue2e"
-    const newBook = await Book.create(bookData);
+    const newBook = await Book.create(bookData); // Ensure Book model matches the structure of bookData
     return newBook;
   } catch (error) {
     throw new Error("Error adding book: " + error.message);
   }
 };
-
-
 
 
 // Update book

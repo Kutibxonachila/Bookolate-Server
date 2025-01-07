@@ -62,13 +62,22 @@ export const fetchAllUsers = async (req, res) => {
 };
 
 // Get user by query with Redis cache
+
 export const fetchUserByQuery = async (req, res) => {
   try {
-    const query = req.query;
-    const cacheKey = `user_query_${JSON.stringify(query)}`;
+    console.log("Query Params:", req.query);
 
-    // Check if the data is cached in Redis
+    const { first_name, last_name, phone } = req.query;
+    const query = {};
+    if (first_name) query.first_name = first_name;
+    if (last_name) query.last_name = last_name;
+    if (phone) query.phone = phone;
+
+    const cacheKey = `user_query_${JSON.stringify(query)}`;
+    console.log("Cache Key:", cacheKey);
+
     const cachedUser = await redis.get(cacheKey);
+    console.log("Cached User:", cachedUser);
 
     if (cachedUser) {
       const userWithToken = JSON.parse(cachedUser).map((user) => ({
@@ -79,41 +88,45 @@ export const fetchUserByQuery = async (req, res) => {
           { expiresIn: "1h" }
         ),
       }));
-
+      console.log("Returning cached user");
       return res.status(200).json({
         message: "Fetched user by query from cache",
         data: userWithToken,
       });
     }
 
-    // If not cached, fetch from DB
+    console.log("Fetching from database");
     const users = await getUserByQuery(query);
+    if (!users.length) {
+      console.log("No users found");
+      return res.status(404).json({ message: "No users found matching the query" });
+    }
 
-    const usersWithTokens = users.map((user) => ({
-      ...user,
+    const usersWithToken = users.map((user) => ({
+      ...user.toJSON(),
       token: jwt.sign(
         { id: user.id, phone: user.phone },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET_KEY,
         { expiresIn: "1h" }
       ),
     }));
 
-    // Cache the result for 1 hour (3600 seconds)
-    await redis.set(cacheKey, JSON.stringify(users));
-    await redis.expire(cacheKey, 3600); // Set expiration time separately
+    console.log("Caching result to Redis");
+    await redis.set(cacheKey, JSON.stringify(usersWithToken), "EX", 3600);
 
-    res.status(200).json({
-      message: "Fetched user by query from database",
-      data: usersWithTokens,
+    return res.status(200).json({
+      message: "Fetched users by query from database",
+      data: usersWithToken,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching user by query", error: error.message });
+    console.error("Controller Error:", error);
+    return res.status(500).json({
+      message: "Error fetching users by query",
+      error: error.message,
+    });
   }
 };
-
-  // Get user by UUID with Redis cache
+// Get user by UUID with Redis cache
 export const fetchUserByUUID = async (req, res) => {
   try {
     const { id } = req.params;
@@ -151,8 +164,6 @@ export const fetchUserByUUID = async (req, res) => {
   }
 };
 
-
-
 // Update user
 export const modifyUser = async (req, res) => {
   try {
@@ -177,7 +188,6 @@ export const modifyUser = async (req, res) => {
     });
   }
 };
-
 
 // Delete user by UUID
 export const removeUserByUUID = async (req, res) => {

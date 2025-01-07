@@ -21,6 +21,7 @@ routerUser.get("/users/:id", fetchUserByUUID);
 
 // Update user
 routerUser.patch("/users/:userId", modifyUser);
+
 routerUser.put("/users/:userId", modifyUser);
 
 // Delete user by UUID
