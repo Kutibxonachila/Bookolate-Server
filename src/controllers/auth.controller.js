@@ -1,6 +1,7 @@
 import { registerUser, loginUser } from "../services/auth.service.js"; // assuming the service is in authService.js
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js"; // Make sure your secret key is properly configured
+import { User } from "../models/index.js";
 
 // Register user controller
 export const registerController = async (req, res) => {
@@ -10,6 +11,12 @@ export const registerController = async (req, res) => {
     // Validate required fields
     if (!first_name || !last_name || !phone || !password || !gender) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check if the phone number already exists
+    const existingUser = await User.findOne({ where: { phone } });
+    if (existingUser) {
+      return res.status(400).json({ message: "Phone number already in use" });
     }
 
     // Register the user
@@ -39,7 +46,6 @@ export const registerController = async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         phone: user.phone,
-        password: user.password,
         gender: user.gender,
       },
       token, // Include the token in the response
@@ -50,6 +56,7 @@ export const registerController = async (req, res) => {
     });
   }
 };
+
 
 // Login user controller
 export const loginController = async (req, res) => {
