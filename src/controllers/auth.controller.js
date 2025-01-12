@@ -1,4 +1,9 @@
-import { registerUser, loginUser } from "../services/auth.service.js"; // assuming the service is in authService.js
+import {
+  registerUser,
+  loginUser,
+  forgetPasswordService,
+  resetPasswordService,
+} from "../services/auth.service.js"; // assuming the service is in authService.js
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js"; // Make sure your secret key is properly configured
 import { User } from "../models/index.js";
@@ -11,6 +16,11 @@ export const registerController = async (req, res) => {
     // Validate required fields
     if (!first_name || !last_name || !phone || !password || !gender) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Validate gender field
+    if (!["Male", "Female"].includes(gender)) {
+      return res.status(400).json({ message: "Invalid gender value" });
     }
 
     // Check if the phone number already exists
@@ -85,5 +95,40 @@ export const loginController = async (req, res) => {
     res.status(401).json({
       message: error.message,
     });
+  }
+};
+// Forget Password Controller
+export const forgetPasswordController = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).send({ message: "Phone number is required" });
+    }
+
+    const result = await forgetPasswordService(phone);
+    res.status(200).send(result);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ message: error.message });
+  }
+};
+
+// Reset Password Controller
+export const resetPasswordController = async (req, res) => {
+  try {
+    const { phone, newPassword } = req.body;
+
+    if (!phone || !newPassword) {
+      return res
+        .status(400)
+        .send({ message: "Phone number and new password are required" });
+    }
+
+    const result = await resetPasswordService(phone, newPassword);
+    res.status(200).send(result);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ message: error.message });
   }
 };

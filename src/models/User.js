@@ -31,7 +31,7 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: "Male",
       validate: {
-        isIn: ["Male", "Female"],
+        isIn: [["Male", "Female"]],
       },
     },
     total_borrowed_books: {

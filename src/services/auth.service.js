@@ -1,7 +1,10 @@
+import { client as twilioClient } from "../config/twilio.config.js";
 import { User } from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js";
+
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 // Register user service
 export const registerUser = async (
@@ -75,3 +78,45 @@ export const loginUser = async (loginData) => {
   }
 };
 
+
+// Forget Password Service
+export const forgetPasswordService = async (phone) => {
+  // Check if the user exists by phone number
+  const user = await User.findOne({ where: { phone } });
+  if (!user) {
+    throw new Error("User with this phone number not found");
+  }
+
+  // Optionally, send an SMS confirmation
+  try {
+    const message = await client.messages.create({
+      body: "Your password reset request has been received. Please reset your password.",
+      to: phone,
+      from: TWILIO_PHONE_NUMBER,
+    });
+    console.log("SMS sent:", message.sid);
+  } catch (error) {
+    console.warn("Twilio SMS failed, proceeding without SMS.");
+  }
+
+  return { message: "Password reset request acknowledged." };
+};
+
+// Reset Password Service
+export const resetPasswordService = async (phone, newPassword) => {
+  // Find user by phone number
+  const user = await User.findOne({ where: { phone } });
+  if (!user) {
+    throw new Error("User with this phone number not found");
+  }
+
+  // Hash the new password
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+  // Update the user's password
+  user.password = hashedPassword;
+  await user.save();
+
+  return { message: "Password reset successful" };
+};
