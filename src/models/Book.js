@@ -1,12 +1,14 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config.js";
 import BorrowingActivity from "./Borrowing.Activuty.js";
+
+
 const Book = sequelize.define(
   "Book",
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4, // Sequelize will handle UUIDv4 generation
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
     },
@@ -61,7 +63,7 @@ const Book = sequelize.define(
       type: DataTypes.NUMERIC,
       allowNull: false,
       validate: {
-        min: 1, // This will ensure the total_copies is a positive NUMERIC
+        min: 1,
       },
       defaultValue: 1,
     },
@@ -100,13 +102,39 @@ const Book = sequelize.define(
         min: 1,
       },
     },
+    is_subject: { // New field
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    subject: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    latitude: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    longitude: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    school: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    grade: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
-    timestamps: true, // Automatically handles createdAt and updatedAt
+    timestamps: true,
     tableName: "Book",
     underscored: true,
   }
 );
+
+
 
 Book.addHook("beforeSave", async (book, options) => {
   try {

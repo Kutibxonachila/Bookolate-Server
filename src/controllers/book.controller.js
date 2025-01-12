@@ -111,15 +111,14 @@ export const getBookUUID = async (req, res) => {
 };
 
 
-const convertToNumber = (value) => {
-  if (value === null || value === undefined || value === "") {
-    return NaN; // Explicitly return NaN for invalid values
-  }
-  const number = parseInt(value, 10);
-  return isNaN(number) ? NaN : number; // Return NaN if the value is not a valid number
-};
+// const convertToNumber = (value) => {
+//   if (value === null || value === undefined || value === "") {
+//     return NaN; // Explicitly return NaN for invalid values
+//   }
+//   const number = parseInt(value, 10);
+//   return isNaN(number) ? NaN : number; // Return NaN if the value is not a valid number
+// };
 
-// Controller function to add a new book
 export const addNewBook = async (req, res) => {
   try {
     console.log(req.body);
@@ -138,6 +137,12 @@ export const addNewBook = async (req, res) => {
       genre,
       publisher,
       pages,
+      latitude,
+      longitude,
+      school,
+      grade,
+      is_subject,
+      subject,
     } = req.body;
 
     // Basic input validation
@@ -145,24 +150,37 @@ export const addNewBook = async (req, res) => {
       return res.status(400).json({ error: "Title and author are required." });
     }
 
-    // Convert numeric fields
+    // Convert numeric fields and handle potential NaN values
     const publicationYear = convertToNumber(publication_year);
     const availableCopies = convertToNumber(available);
     const pageCount = convertToNumber(pages);
+    const latitudeValue = convertToNumber(latitude);
+    const longitudeValue = convertToNumber(longitude);
 
-    // Validate numeric fields
-    if (isNaN(publicationYear) || isNaN(availableCopies) || isNaN(pageCount)) {
+    // Validate numeric fields for NaN
+    if (
+      isNaN(publicationYear) ||
+      isNaN(availableCopies) ||
+      isNaN(pageCount) ||
+      isNaN(latitudeValue) ||
+      isNaN(longitudeValue)
+    ) {
       return res.status(400).json({
         error:
-          "Invalid numeric values for publication_year, available, or pages. Ensure all are valid integers.",
+          "Invalid numeric values. Ensure all numeric fields are valid integers, and no field contains NaN.",
       });
     }
 
     // Parse keywords safely
     let processedKeywords = [];
     try {
-      processedKeywords =
-        typeof keywords === "string" ? JSON.parse(keywords) : keywords || [];
+      if (typeof keywords === "string") {
+        processedKeywords = keywords.split(",").map((item) => item.trim());
+      } else if (Array.isArray(keywords)) {
+        processedKeywords = keywords;
+      } else {
+        throw new Error("Invalid keywords format.");
+      }
     } catch (parseError) {
       return res.status(400).json({ error: "Invalid keywords format." });
     }
@@ -185,11 +203,17 @@ export const addNewBook = async (req, res) => {
       genre,
       publisher,
       pages: pageCount,
+      latitude: latitudeValue,
+      longitude: longitudeValue,
+      school,
+      grade,
+      is_subject,
+      subject,
     };
 
     console.log("Second log: ", newBook);
 
-    // Save to database
+    // Save to database (Ensure safe query here)
     const savedBook = await addBook(newBook);
 
     return res.status(201).json({
@@ -203,6 +227,18 @@ export const addNewBook = async (req, res) => {
     });
   }
 };
+
+
+
+function convertToNumber(value) {
+  const number = Number(value);
+  if (isNaN(number)) {
+    console.log("Warning: Invalid number value encountered", value); // For debugging
+    return 0; // Default to 0 if it's NaN
+  }
+  return number;
+}
+
 
 // Update book
 export const updateBook = async (req, res) => {
