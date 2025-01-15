@@ -20,7 +20,6 @@ export const getAllBook = async () => {
 
 
 // Fetch books by query
-
 export const getBookByQuery = async (query) => {
   try {
     const books = await Book.findAll({

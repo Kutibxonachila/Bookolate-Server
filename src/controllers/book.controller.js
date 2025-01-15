@@ -71,39 +71,6 @@ export const BookGetQuery = async (req, res) => {
   }
 };
 
-    const { query } = req.query;
-
-    if (!query || typeof query !== "string" || query.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Query parameter is required and must be a valid string.",
-      });
-    }
-
-    const books = await getBookByQuery(query.trim());
-
-    if (!books || books.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No books found for the given query",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Fetched books by query from database",
-      data: books,
-    });
-  } catch (error) {
-    console.error("Error fetching books by query:", error);
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while fetching books",
-      error: error.message,
-    });
-  }
-};
-
 
 // Fetch book by UUID without Redis cache
 export const getBookUUID = async (req, res) => {

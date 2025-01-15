@@ -13,7 +13,7 @@ import upload from "../utils/fileUpload.js";
 const routerBook = Router();
 
 routerBook.get("/all_book", FetchAllBook);
-routerBook.get("/books?query", BookGetQuery);
+routerBook.get("/books", BookGetQuery);
 routerBook.get("/:bookId", getBookUUID);
 routerBook.post("/", upload.single("image"), addNewBook);
 routerBook.put("/update/:bookId", upload.single("image"), updateBook);
