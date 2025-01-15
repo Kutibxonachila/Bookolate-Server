@@ -2,7 +2,6 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.config.js";
 import BorrowingActivity from "./Borrowing.Activuty.js";
 
-
 const Book = sequelize.define(
   "Book",
   {
@@ -25,7 +24,7 @@ const Book = sequelize.define(
       allowNull: false,
     },
     publication_year: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: DataTypes.DATE,
     },
@@ -50,17 +49,17 @@ const Book = sequelize.define(
       },
     },
     readed_count: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.NUMBER,
       allowNull: false,
       defaultValue: 0,
     },
     missing_books: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.NUMBER,
       allowNull: false,
       defaultValue: 0,
     },
     available: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.SMALLINT,
       allowNull: false,
       validate: {
         min: 1,
@@ -94,7 +93,7 @@ const Book = sequelize.define(
       defaultValue: "KitobSpace",
     },
     pages: {
-      type: DataTypes.NUMERIC,
+      type: DataTypes.SMALLINT,
       allowNull: false,
       defaultValue: 1,
       validate: {
@@ -102,7 +101,8 @@ const Book = sequelize.define(
         min: 1,
       },
     },
-    is_subject: { // New field
+    is_subject: {
+      // New field
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
@@ -123,7 +123,7 @@ const Book = sequelize.define(
       allowNull: true,
     },
     grade: {
-      type: DataTypes.STRING,
+      type: DataTypes.SMALLINT,
       allowNull: true,
     },
   },
@@ -133,8 +133,6 @@ const Book = sequelize.define(
     underscored: true,
   }
 );
-
-
 
 Book.addHook("beforeSave", async (book, options) => {
   try {

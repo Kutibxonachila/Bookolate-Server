@@ -36,20 +36,18 @@ export async function FetchAllBook(req, res) {
   }
 }
 // Fetch book by query with Redis cache
-// Fetch book by query without Redis cache
 export const BookGetQuery = async (req, res) => {
   try {
     const { query } = req.query;
 
-    if (!query) {
+    if (!query || typeof query !== "string" || query.trim() === "") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter is required",
+        message: "Query parameter is required and must be a valid string.",
       });
     }
 
-    // Fetch from DB
-    const books = await getBookByQuery(query);
+    const books = await getBookByQuery(query.trim());
 
     if (!books || books.length === 0) {
       return res.status(404).json({
@@ -60,11 +58,11 @@ export const BookGetQuery = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Fetched book by query from database",
+      message: "Fetched books by query from database",
       data: books,
     });
   } catch (error) {
-    console.error("Error fetching book by query:", error);
+    console.error("Error fetching books by query:", error);
     res.status(500).json({
       success: false,
       message: "An error occurred while fetching books",
@@ -72,6 +70,40 @@ export const BookGetQuery = async (req, res) => {
     });
   }
 };
+
+    const { query } = req.query;
+
+    if (!query || typeof query !== "string" || query.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Query parameter is required and must be a valid string.",
+      });
+    }
+
+    const books = await getBookByQuery(query.trim());
+
+    if (!books || books.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No books found for the given query",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Fetched books by query from database",
+      data: books,
+    });
+  } catch (error) {
+    console.error("Error fetching books by query:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching books",
+      error: error.message,
+    });
+  }
+};
+
 
 // Fetch book by UUID without Redis cache
 export const getBookUUID = async (req, res) => {
@@ -109,7 +141,6 @@ export const getBookUUID = async (req, res) => {
     });
   }
 };
-
 
 // const convertToNumber = (value) => {
 //   if (value === null || value === undefined || value === "") {
@@ -156,14 +187,15 @@ export const addNewBook = async (req, res) => {
     const pageCount = convertToNumber(pages);
     const latitudeValue = convertToNumber(latitude);
     const longitudeValue = convertToNumber(longitude);
-
+    const gradeValue = convertToNumber(grade);
     // Validate numeric fields for NaN
     if (
       isNaN(publicationYear) ||
       isNaN(availableCopies) ||
       isNaN(pageCount) ||
       isNaN(latitudeValue) ||
-      isNaN(longitudeValue)
+      isNaN(longitudeValue) ||
+      isNaN(gradeValue)
     ) {
       return res.status(400).json({
         error:
@@ -206,7 +238,7 @@ export const addNewBook = async (req, res) => {
       latitude: latitudeValue,
       longitude: longitudeValue,
       school,
-      grade,
+      grade: gradeValue,
       is_subject,
       subject,
     };
@@ -216,6 +248,7 @@ export const addNewBook = async (req, res) => {
     // Save to database (Ensure safe query here)
     const savedBook = await addBook(newBook);
 
+    // Return success response
     return res.status(201).json({
       message: "Book added successfully!",
       book: savedBook,
@@ -228,8 +261,6 @@ export const addNewBook = async (req, res) => {
   }
 };
 
-
-
 function convertToNumber(value) {
   const number = Number(value);
   if (isNaN(number)) {
@@ -238,7 +269,6 @@ function convertToNumber(value) {
   }
   return number;
 }
-
 
 // Update book
 export const updateBook = async (req, res) => {

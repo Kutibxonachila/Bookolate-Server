@@ -1,4 +1,5 @@
 import { Book } from "../models/index.js";
+import { Op } from "sequelize";
 import { generateError } from "../utils/index.js";
 // Fetch all books
 export const getAllBook = async () => {
@@ -19,20 +20,22 @@ export const getAllBook = async () => {
 
 
 // Fetch books by query
+
 export const getBookByQuery = async (query) => {
   try {
     const books = await Book.findAll({
-      where: query,
+      where: {
+        title: {
+          [Op.iLike]: `%${query}%`,
+        },
+      },
     });
 
     if (!Array.isArray(books) || books.length === 0) {
       throw new Error("No books found matching the query criteria.");
     }
 
-    // Convert sequelize models to plain objects manually
-    const booksData = books.map(book => book.get({ plain: true }));
-
-    return booksData;
+    return books.map((book) => book.get({ plain: true }));
   } catch (error) {
     throw new Error("Error fetching books data by query: " + error.message);
   }
