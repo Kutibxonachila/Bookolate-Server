@@ -38,16 +38,18 @@ export async function FetchAllBook(req, res) {
 // Fetch book by query with Redis cache
 export const BookGetQuery = async (req, res) => {
   try {
-    const { query } = req.query;
+    const queryParams = req.query;
 
-    if (!query || typeof query !== "string" || query.trim() === "") {
+    // If no query params are provided
+    if (Object.keys(queryParams).length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Query parameter is required and must be a valid string.",
+        message: "At least one query parameter is required.",
       });
     }
 
-    const books = await getBookByQuery(query.trim());
+    // Fetch books based on dynamic query parameters
+    const books = await getBookByQuery(queryParams);
 
     if (!books || books.length === 0) {
       return res.status(404).json({
@@ -70,6 +72,7 @@ export const BookGetQuery = async (req, res) => {
     });
   }
 };
+
 
 
 // Fetch book by UUID without Redis cache

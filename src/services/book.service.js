@@ -20,18 +20,49 @@ export const getAllBook = async () => {
 
 
 // Fetch books by query
-export const getBookByQuery = async (query) => {
+
+export const getBookByQuery = async (queryParams) => {
   try {
+    const whereClause = {};
+
+    // Loop through query parameters to dynamically build where clause
+    for (const [key, value] of Object.entries(queryParams)) {
+      // Check if the value is a number and if the field exists in the model
+      if (Book.rawAttributes[key]) {
+        // Check if the field is numeric
+        if (isNaN(value)) {
+          // For non-numeric fields, perform case-insensitive search
+          whereClause[key] = {
+            [Op.iLike]: `%${value}%`,
+          };
+        } else {
+          // For numeric fields like `pages`, perform an exact match
+          whereClause[key] = {
+            [Op.eq]: parseInt(value), // Convert value to integer for numeric fields
+          };
+        }
+      }
+    }
+
+    // Log the whereClause to see if it's being built correctly
+    console.log("Where Clause: ", whereClause);
+
+    // If no valid fields were found, return an empty array
+    if (Object.keys(whereClause).length === 0) {
+      return [];
+    }
+
+    // Fetch books matching the query parameters
     const books = await Book.findAll({
-      where: {
-        title: {
-          [Op.iLike]: `%${query}%`,
-        },
-      },
+      where: whereClause,
     });
 
+    // Log the result to see what is being returned
+    console.log("Fetched Books: ", books);
+
+    // If no books found
     if (!Array.isArray(books) || books.length === 0) {
-      throw new Error("No books found matching the query criteria.");
+      return [];
     }
 
     return books.map((book) => book.get({ plain: true }));
