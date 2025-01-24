@@ -78,7 +78,6 @@ export const loginUser = async (loginData) => {
   }
 };
 
-
 // Forget Password Service
 export const forgetPasswordService = async (phone) => {
   // Check if the user exists by phone number
