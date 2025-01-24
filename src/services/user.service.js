@@ -75,9 +75,9 @@ export const deleteUserByUUID = async (userId) => {
   }
 };
 
-export const DeleteAllUser = async (Model) => {
+export const DeleteAllUser = async () => {
   try {
-    await Model.destroy({
+    await User.destroy({
       where: {},
       truncate: true,
     });
