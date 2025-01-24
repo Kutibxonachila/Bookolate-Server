@@ -78,12 +78,11 @@ export const deleteUserByUUID = async (userId) => {
 export const DeleteAllUser = async () => {
   try {
     await User.destroy({
-      where: {},
-      truncate: true,
+      where: {}, // Deletes all rows
     });
 
-    return { success: true, message: "All data deleted successfully." };
+    return { success: true, message: "All users deleted successfully." };
   } catch (error) {
-    throw new Error("Error deleting user by UUID: " + error.message);
+    throw new Error("Error deleting all users: " + error.message);
   }
 };
