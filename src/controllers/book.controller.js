@@ -120,6 +120,7 @@ export const getBookUUID = async (req, res) => {
 //   return isNaN(number) ? NaN : number; // Return NaN if the value is not a valid number
 // };
 
+// bookController.js
 export const addNewBook = async (req, res) => {
   try {
     console.log(req.body);
@@ -158,6 +159,7 @@ export const addNewBook = async (req, res) => {
     const latitudeValue = convertToNumber(latitude);
     const longitudeValue = convertToNumber(longitude);
     const gradeValue = convertToNumber(grade);
+
     // Validate numeric fields for NaN
     if (
       isNaN(publicationYear) ||
@@ -231,6 +233,7 @@ export const addNewBook = async (req, res) => {
   }
 };
 
+// Helper function to convert a value to a number
 function convertToNumber(value) {
   const number = Number(value);
   if (isNaN(number)) {
@@ -239,6 +242,8 @@ function convertToNumber(value) {
   }
   return number;
 }
+
+
 
 // Update book
 export const updateBook = async (req, res) => {
