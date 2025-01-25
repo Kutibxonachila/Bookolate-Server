@@ -38,7 +38,7 @@ const BorrowingActivity = sequelize.define("borrowing_activity", {
   },
   return_date: {
     type: DataTypes.DATE(),
-    allowNull: false,
+    allowNull: true,
   },
   status: {
     type: DataTypes.VIRTUAL,
