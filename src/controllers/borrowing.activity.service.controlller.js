@@ -51,3 +51,27 @@ export const returnBookController = async (req, res) => {
     });
   }
 };
+
+
+export const getAllBorrowsController = async (req, res) => {
+  try {
+    const borrows = await getAllBorrows();
+
+    if (!borrows || borrows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No borrow records found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      borrows,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -29,3 +29,12 @@ export const returnBook = async (userId, bookId) => {
   }
 };
 
+// Get all borrow records
+export const getAllBorrows = async () => {
+  try {
+    const borrows = await BorrowingActivity.findAll();
+    return borrows;
+  } catch (error) {
+    throw new Error("Error fetching borrow records: " + error.message);
+  }
+};
