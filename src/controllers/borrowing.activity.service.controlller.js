@@ -3,7 +3,7 @@ import { borrowBook, returnBook } from "../services/borrowing.activity.service.j
 // Borrow a book
 export const borrowBookController = async (req, res) => {
   try {
-    const { userId, bookId } = req.body;
+    const { userId, bookId  } = req.body;
 
     if (!userId || !bookId) {
       return res.status(400).json({

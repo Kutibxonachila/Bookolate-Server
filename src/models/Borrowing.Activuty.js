@@ -4,12 +4,12 @@ import { sequelize } from "../config/db.config.js";
 const BorrowingActivity = sequelize.define("borrowing_activity", {
   id: {
     type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4, // Sequelize will automatically generate UUIDv4
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
   },
   user_id: {
-    type: DataTypes.UUID, // Use UUID, not UUIDV4
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: "Users",
@@ -19,7 +19,7 @@ const BorrowingActivity = sequelize.define("borrowing_activity", {
     onUpdate: "CASCADE",
   },
   book_id: {
-    type: DataTypes.UUID, // Use UUID, not UUIDV4
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: "Book",
@@ -29,23 +29,23 @@ const BorrowingActivity = sequelize.define("borrowing_activity", {
     onUpdate: "CASCADE",
   },
   borrow_date: {
-    type: DataTypes.DATE(),
+    type: DataTypes.DATE,
     allowNull: false,
   },
   due_date: {
-    type: DataTypes.DATE(),
+    type: DataTypes.DATE,
     allowNull: false,
   },
   return_date: {
-    type: DataTypes.DATE(),
-    allowNull: false,
+    type: DataTypes.DATE, // Mark this as nullable
+    allowNull: true,
   },
   status: {
     type: DataTypes.VIRTUAL,
     get() {
-      if (!return_date) {
+      if (!this.return_date) {
         return "Not Returned";
-      } else if (return_date <= due_date) {
+      } else if (this.return_date <= this.due_date) {
         return "On Time";
       } else {
         return "Overdue";
