@@ -1,4 +1,4 @@
-import { borrowBook, returnBook } from "../services/borrowing.activity.service.js";
+import { borrowBook, returnBook,getAllBorrows } from "../services/borrowing.activity.service.js";
 
 // Borrow a book
 export const borrowBookController = async (req, res) => {
@@ -69,6 +69,7 @@ export const getAllBorrowsController = async (req, res) => {
       borrows,
     });
   } catch (error) {
+    console.log(error.message)
     res.status(500).json({
       success: false,
       message: error.message,
