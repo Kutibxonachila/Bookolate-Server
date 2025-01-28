@@ -1,4 +1,6 @@
 import { User } from "../models/index.js";
+import { Op } from "sequelize";
+
 
 export const getAllUser = async () => {
   try {
@@ -9,15 +11,44 @@ export const getAllUser = async () => {
   }
 };
 
-export const getUserByQuery = async (query) => {
+export const getUserByQuery = async (queryParams) => {
   try {
-    const users = await User.findAll({ where: query });
-    return users;
+    const whereClause = {};
+
+    // Loop through query parameters to dynamically build where clause
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (User.rawAttributes[key]) {
+        if (isNaN(value)) {
+          // Case-insensitive search for non-numeric fields
+          whereClause[key] = { [Op.iLike]: `%${value}%` };
+        } else {
+          // Exact match for numeric fields
+          whereClause[key] = { [Op.eq]: parseInt(value, 10) };
+        }
+      }
+    }
+
+    console.log("Where Clause:", whereClause);
+
+    // Return an empty array if no valid query fields are provided
+    if (Object.keys(whereClause).length === 0) {
+      return [];
+    }
+
+    // Fetch users matching the query parameters
+    const users = await User.findAll({ where: whereClause });
+
+    if (!users.length) {
+      return [];
+    }
+
+    return users.map((user) => user.get({ plain: true }));
   } catch (error) {
     console.error("Service Error:", error.message);
-    throw new Error("Error fetching users by query");
+    throw new Error("Error fetching users data by query: " + error.message);
   }
 };
+
 
 
 export const getUserByUUID = async (userId) => {

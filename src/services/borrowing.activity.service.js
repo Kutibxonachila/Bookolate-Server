@@ -1,4 +1,4 @@
-import { BorrowingActivity, User } from "../models/index.js";
+import { Book, BorrowingActivity, User } from "../models/index.js";
 import { parse, isValid } from "date-fns";
 
 export const borrowBook = async (userId, bookId, dueDate) => {
@@ -12,6 +12,57 @@ export const borrowBook = async (userId, bookId, dueDate) => {
       }
     }
 
+    if (parsedDueDate) {
+    }
+    const book = await Book.findOne({ where: { id: bookId } });
+    if (!book) {
+      throw new Error("Book not found");
+    }
+
+    const pages = book.pages;
+    if (pages >= 10 && pages <= 50) {
+      parsedDueDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
+    } else if (pages > 50 && pages <= 100) {
+      parsedDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    } else if (pages > 100 && pages <= 150) {
+      parsedDueDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    } else if (pages > 150 && pages <= 200) {
+      parsedDueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    } else if (pages > 200 && pages <= 250) {
+      parsedDueDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+    } else if (pages > 250 && pages <= 300) {
+      parsedDueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    } else if (pages > 300) {
+      parsedDueDate = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000); // 3 weeks for books with more than 300 pages
+    }
+    class BorrowingDuration {
+      constructor(pages) {
+        this.pages = pages;
+      }
+
+      calculateDueDate() {
+        if (this.pages >= 10 && this.pages <= 50) {
+          return new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 50 && this.pages <= 100) {
+          return new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 100 && this.pages <= 150) {
+          return new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 150 && this.pages <= 200) {
+          return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 200 && this.pages <= 250) {
+          return new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 250 && this.pages <= 300) {
+          return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        } else if (this.pages > 300) {
+          return new Date(Date.now() + 21 * 24 * 60 * 60 * 1000); // 3 weeks for books with more than 300 pages
+        } else {
+          throw new Error("Invalid number of pages");
+        }
+      }
+    }
+
+    const borrowingDuration = new BorrowingDuration(book.pages);
+    parsedDueDate = borrowingDuration.calculateDueDate();
     // Create the borrowing activity
     const borrowingActivity = await BorrowingActivity.create({
       user_id: userId,

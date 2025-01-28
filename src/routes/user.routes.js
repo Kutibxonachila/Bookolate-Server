@@ -16,7 +16,7 @@ routerUser.get("/users", fetchAllUsers);
 // Get user by query (e.g., ?name=John)
 routerUser.get("/users/query", fetchUserByQuery);
 
-// Get user by UUID 
+// Get user by UUID
 routerUser.get("/users/:id", fetchUserByUUID);
 
 // Update user

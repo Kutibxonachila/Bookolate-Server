@@ -10,7 +10,6 @@ import routerBookActivity from "./routes/book.activity.router.js";
 import routerBook from "./routes/book.routes.js";
 import routerBorrow from "./routes/borrowing.activity.service.router.js";
 import routerSearch from "./routes/search.router.js";
-import routerUserBorrow from "./routes/user.activity.router.js";
 import routerUser from "./routes/user.routes.js";
 import routerWeeklyPopular from "./routes/weekly.popular.book.router.js";
 
@@ -32,7 +31,6 @@ const createApp = () => {
   app.use("/book", routerBook);
   app.use("/borrowing", routerBorrow);
   app.use("/search", routerSearch);
-  app.use("/user/activity", routerUserBorrow);
   app.use("/user", routerUser);
   app.use("/weekly", routerWeeklyPopular);
 

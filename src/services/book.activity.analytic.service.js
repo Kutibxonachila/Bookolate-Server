@@ -28,7 +28,7 @@ export const getBookAnalytics = async (page = 1, pageSize = 10) => {
     return await BookAnalytics.findAndCountAll({
       offset,
       limit: pageSize,
-      order: [["createdAt", "DESC"]], // Optional: Order by newest
+      order: [["created_at", "DESC"]], // Optional: Order by newest
     });
   } catch (error) {
     throw new Error("Error fetching book analytics: " + error.message);

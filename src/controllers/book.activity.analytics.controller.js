@@ -31,7 +31,37 @@ export const updateBookAnalyticsController = async (req, res) => {
     });
   }
 };
+// Function to fetch and update book analytics in the cache
+const updateBookAnalyticsCache = async (page, pageSize) => {
+  try {
+    const cacheKey = `book_analytics_page_${page}_size_${pageSize}`;
+    const analytics = await getBookAnalytics(page, pageSize);
 
+    // Update the cache with fresh data
+    await redis.set(cacheKey, JSON.stringify(analytics.rows), "EX", 3600);
+    console.log(`Cache updated for key: ${cacheKey}`);
+  } catch (error) {
+    console.error("Failed to update book analytics cache:", error.message);
+  }
+};
+
+// Schedule auto cache updates every 30 seconds
+const scheduleCacheUpdate = (interval = 30000) => {
+  setInterval(async () => {
+    // Define pages and sizes to be cached (can be customized)
+    const pagesToCache = [1, 2, 3]; // Example: First 3 pages
+    const pageSize = 10;
+
+    for (const page of pagesToCache) {
+      await updateBookAnalyticsCache(page, pageSize);
+    }
+  }, interval);
+};
+
+// Start the cache update process
+scheduleCacheUpdate(30000); // Update every 30 seconds
+
+// Controller function
 export const getBookAnalyticsController = async (req, res) => {
   try {
     const { page = 1, pageSize = 10 } = req.query;
@@ -52,7 +82,7 @@ export const getBookAnalyticsController = async (req, res) => {
     const analytics = await getBookAnalytics(page, pageSize);
 
     // Cache the data in Redis with an expiration time (e.g., 1 hour)
-    await redis.setex(cacheKey, 3600, JSON.stringify(analytics.rows));
+    await redis.set(cacheKey, JSON.stringify(analytics.rows), "EX", 3600);
 
     res.status(200).json({
       message: "Book analytics fetched successfully",
