@@ -28,6 +28,6 @@ routerUser.put("/users/:userId", modifyUser);
 routerUser.delete("/users/:id", removeUserByUUID);
 
 // Delete all users
-routerUser.delete("/users", removeAllUsers);
+routerUser.delete("/delete", removeAllUsers);
 
 export default routerUser;
