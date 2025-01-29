@@ -14,7 +14,7 @@ const routerUser = express.Router();
 routerUser.get("/users", fetchAllUsers);
 
 // Get user by query (e.g., ?name=John)
-routerUser.get("/users/query", fetchUserByQuery);
+routerUser.get("/users", fetchUserByQuery);
 
 // Get user by UUID
 routerUser.get("/users/:id", fetchUserByUUID);

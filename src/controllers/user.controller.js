@@ -75,24 +75,59 @@ export const fetchUserByQuery = async (req, res) => {
       });
     }
 
-    // Fetch users based on the query parameters
+    const cacheKey = `user_query_${JSON.stringify(queryParams)}`;
+
+    // Check if data is cached in Redis
+    const cachedUsers = await redis.get(cacheKey);
+
+    if (cachedUsers) {
+      const usersWithTokens = JSON.parse(cachedUsers).map((user) => ({
+        ...user,
+        token: jwt.sign(
+          { id: user.id, phone: user.phone },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1h" }
+        ),
+      }));
+
+      return res.status(200).json({
+        success: true,
+        message: "Fetched users by query from cache",
+        data: usersWithTokens,
+      });
+    }
+
+    // Fetch users from the database
     const users = await getUserByQuery(queryParams);
 
-    if (!users.length) {
+    if (!users || users.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No users found for the given query.",
       });
     }
 
+    const usersWithTokens = users.map((user) => ({
+      ...user,
+      token: jwt.sign(
+        { id: user.id, phone: user.phone },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "1h" }
+      ),
+    }));
+
+    // Cache the result with a 1-hour expiration
+    await redis.set(cacheKey, JSON.stringify(users));
+    await redis.expire(cacheKey, 3600);
+
     return res.status(200).json({
       success: true,
-      message: "Fetched users by query from the database.",
-      data: users,
+      message: "Fetched users by query from the database",
+      data: usersWithTokens,
     });
   } catch (error) {
     console.error("Controller Error:", error.message);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "An error occurred while fetching users.",
       error: error.message,

@@ -11,11 +11,50 @@ export const getAllUser = async () => {
   }
 };
 
+// export const getUserByQuery = async (queryParams) => {
+//   try {
+//     const whereClause = {};
+
+//     // Loop through query parameters to dynamically build where clause
+//     for (const [key, value] of Object.entries(queryParams)) {
+//       if (User.getAttributes()[key]) {
+//         if (isNaN(value)) {
+//           // Case-insensitive search for non-numeric fields
+//           whereClause[key] = { [Op.iLike]: `%${value}%` };
+//         } else {
+//           // Exact match for numeric fields
+//           whereClause[key] = { [Op.eq]: parseInt(value, 10) };
+//         }
+//       }
+//     }
+
+//     console.log("Where Clause:", whereClause);
+
+//     // Return an empty array if no valid query fields are provided
+//     if (Object.keys(whereClause).length === 0) {
+//       return [];
+//     }
+
+//     // Fetch users matching the query parameters
+//     const users = await User.findAll({ where: whereClause });
+
+//     if (!users.length) {
+//       return [];
+//     }
+
+//     return users.map((user) => user.get({ plain: true }));
+//   } catch (error) {
+//     console.error("Service Error:", error.message);
+//     throw new Error("Error fetching users data by query: " + error.message);
+//   }
+// };
+
+
 export const getUserByQuery = async (queryParams) => {
   try {
     const whereClause = {};
 
-    // Loop through query parameters to dynamically build where clause
+    // Loop through query parameters to dynamically build the where clause
     for (const [key, value] of Object.entries(queryParams)) {
       if (User.rawAttributes[key]) {
         if (isNaN(value)) {
@@ -23,32 +62,28 @@ export const getUserByQuery = async (queryParams) => {
           whereClause[key] = { [Op.iLike]: `%${value}%` };
         } else {
           // Exact match for numeric fields
-          whereClause[key] = { [Op.eq]: parseInt(value, 10) };
+          whereClause[key] = { [Op.eq]: parseInt(value) };
         }
       }
     }
 
-    console.log("Where Clause:", whereClause);
-
-    // Return an empty array if no valid query fields are provided
     if (Object.keys(whereClause).length === 0) {
       return [];
     }
 
-    // Fetch users matching the query parameters
+    // Fetch users from the database
     const users = await User.findAll({ where: whereClause });
 
-    if (!users.length) {
+    if (!Array.isArray(users) || users.length === 0) {
       return [];
     }
 
     return users.map((user) => user.get({ plain: true }));
   } catch (error) {
     console.error("Service Error:", error.message);
-    throw new Error("Error fetching users data by query: " + error.message);
+    throw new Error("Error fetching users by query: " + error.message);
   }
 };
-
 
 
 export const getUserByUUID = async (userId) => {

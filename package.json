@@ -43,6 +43,7 @@
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "ioredis": "^5.4.1",
+    "node-cron": "^3.0.3",
     "redis": "^4.7.0",
     "twilio": "^5.4.1",
     "vercel": "^39.2.2"
