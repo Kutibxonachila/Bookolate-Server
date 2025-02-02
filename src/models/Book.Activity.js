@@ -63,7 +63,7 @@ const BookActivity = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: false }
+  { timestamps: false, tableName: "book_activity" }
 );
 
 export default BookActivity;

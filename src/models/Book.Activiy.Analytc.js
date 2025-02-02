@@ -81,6 +81,7 @@ const BookAnalytics = sequelize.define(
   },
   {
     timestamps: false,
+    tableName: "book_activity_analytics",
   }
 );
 

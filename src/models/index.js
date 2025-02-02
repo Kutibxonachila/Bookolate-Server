@@ -4,6 +4,8 @@ import BookActivity from "./Book.Activity.js";
 import AllTimePopular_Book from "./AllTimePopular.Book.js"; // Fixed naming
 import BorrowingActivity from "./Borrowing.Activuty.js"; // Fixed typo in file name
 import WeeklyPopularBooks from "./Weekly.Popular.Book.js";
+import School from "./School.js";
+import Admin from "./Admins.js";
 
 // User and Book Activity
 User.hasMany(BookActivity, {
@@ -58,6 +60,30 @@ WeeklyPopularBooks.belongsTo(Book, {
   foreignKey: { allowNull: false, name: "book_id" },
 });
 
+School.hasMany(Admin, {
+  foreignKey: { allowNull: false, name: "admin_id" },
+});
+
+Admin.belongsTo(School, {
+  foreignKey: { allowNull: false, name: "admin_id" },
+});
+
+Admin.hasMany(School, {
+  foreignKey: { allowNull: false, name: "schoolId" },
+});
+
+School.belongsTo(Admin, {
+  foreignKey: { allowNull: false, name: "schoolId" },
+});
+
+Todo.hasMany(Admin, {
+  foreignKey: { allowNull: false, name: "admin_id" },
+});
+
+Admin.belongsTo(Todo, {
+  foreignKey: { allowNull: false, name: "admin_id" },
+});
+
 export {
   Book,
   User,
@@ -65,4 +91,7 @@ export {
   AllTimePopular_Book,
   BorrowingActivity,
   WeeklyPopularBooks,
+  Admin,
+  School,
+  Todo,
 };

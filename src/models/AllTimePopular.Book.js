@@ -37,7 +37,7 @@ const AllTimePopular_Book = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: false }
+  { timestamps: false, tableName: "all_time_popular_books" }
 );
 
 export default AllTimePopular_Book

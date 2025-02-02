@@ -34,6 +34,7 @@ const WeeklyPopularBooks = sequelize.define(
   },
   {
     timestamps: false,
+    tableName: "weekly_popular_books",
   }
 );
 

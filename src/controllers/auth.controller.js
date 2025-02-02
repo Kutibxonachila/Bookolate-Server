@@ -7,6 +7,7 @@ import {
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js"; // Make sure your secret key is properly configured
 import { User } from "../models/index.js";
+import bcrypt from 'bcrypt';
 
 // Register user controller
 export const registerController = async (req, res) => {
@@ -67,7 +68,6 @@ export const registerController = async (req, res) => {
   }
 };
 
-
 // Login user controller
 export const loginController = async (req, res) => {
   try {
@@ -80,6 +80,43 @@ export const loginController = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Phone and password are required" });
+    }
+    const admins = [
+      {
+      first_name: "Temur",
+      last_name: "Eshtemirov",
+      phone: "+998995430660",
+      password: await bcrypt.hash("Temur_aDmin", 10),
+      },
+      {
+      first_name: "Dilyor",
+      last_name: "Ne'matullayev",
+      phone: "+998994356555",
+      password: await bcrypt.hash("Dilyor_aDmin", 10),
+      },
+      {
+      first_name: "Oybek",
+      last_name: "Samadov",
+      phone: "",
+      password: await bcrypt.hash("Oybek_aDmin", 10),
+      },
+    ];
+
+    const admin = admins.find(
+      (admin) => admin.phone === phone && bcrypt.compareSync(password, admin.password)
+    );
+
+    if (admin) {
+      return res.status(200).json({
+      message: "Login successful",
+      user: {
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        phone: admin.phone,
+        password: password, // Show not hashed password in response
+        hashed_password: admin.password, // Show hashed password in response
+      },
+      });
     }
 
     // Pass the data as an object to the service function
