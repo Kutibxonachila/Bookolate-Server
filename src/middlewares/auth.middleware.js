@@ -33,3 +33,24 @@ export const verifyToken = (req, res, next) => {
     next();
   });
 };
+
+
+export const authenticate = (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) throw new Error("Unauthorized");
+
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
+
+export const authorizeSuperAdmin = (req, res, next) => {
+  if (req.user.role !== "superadmin") {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  next();
+};

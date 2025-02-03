@@ -1,5 +1,6 @@
-import sequelize from "../config/db.config.js"
-import { DataTypes,UUIDV4 } from "sequelize";
+import sequelize from "../config/db.config.js";
+import { DataTypes, UUIDV4 } from "sequelize";
+import School from "./school.js";
 
 const Admin = sequelize.define(
   "Admin",
@@ -40,19 +41,34 @@ const Admin = sequelize.define(
     permissions: {
       type: DataTypes.JSONB,
       defaultValue: {},
+      get() {
+        if (this.getDataValue("role") === "superadmin") {
+          return { all: true };
+        }
+        return this.getDataValue("permissions");
+      },
     },
     schoolId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: School,
         key: "id",
+      },
+      validate: {
+        isNullIfSuperAdmin(value) {
+          if (this.role === "superadmin" && value !== null) {
+            throw new Error(
+              "Superadmin should not be associated with a school"
+            );
+          }
+        },
       },
     },
   },
   {
     tableName: "admins",
-    timestamps: false, // Мы убрали createdAt и updatedAt
+    timestamps: false,
   }
 );
 
