@@ -3,6 +3,6 @@ import { logActivityController } from "../controllers/book.activity.controller.j
 
 const routerBookActivity = Router();
 
-routerBookActivity.post("/log", lo  gActivityController);
+routerBookActivity.post("/log", logActivityController);
 
 export default routerBookActivity;

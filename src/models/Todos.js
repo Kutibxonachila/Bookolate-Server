@@ -1,5 +1,6 @@
 import { DataTypes, UUIDV4 } from "sequelize";
-import sequelize from "../config/db.config.js";
+import { sequelize } from "../config/db.config.js";
+
 
 const Todo = sequelize.define(
   "Todo",
@@ -20,12 +21,13 @@ const Todo = sequelize.define(
     status: {
       type: DataTypes.ENUM("pending", "in_progress", "completed"),
       defaultValue: "pending",
+      allowNull: false, 
     },
     admin_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: Admin,
+        model: "admins", 
         key: "id",
       },
     },
@@ -35,5 +37,6 @@ const Todo = sequelize.define(
     timestamps: true,
   }
 );
+
 
 export default Todo;

@@ -1,6 +1,6 @@
-import sequelize from "../config/db.config.js";
+import { sequelize } from "../config/db.config.js";
 import { DataTypes, UUIDV4 } from "sequelize";
-import School from "./school.js";
+
 
 const Admin = sequelize.define(
   "Admin",
@@ -29,6 +29,7 @@ const Admin = sequelize.define(
     },
     role: {
       type: DataTypes.ENUM("superadmin", "admin"),
+      allowNull: false,
       defaultValue: "admin",
     },
     isActive: {
@@ -52,7 +53,7 @@ const Admin = sequelize.define(
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: School,
+        model: "schools", // Use the string name here to break the circular reference
         key: "id",
       },
       validate: {

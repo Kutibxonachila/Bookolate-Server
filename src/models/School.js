@@ -1,9 +1,5 @@
-// const { DataTypes, UUIDV4 } = require("sequelize");
-// const sequelize = require("../config/database");
-// const Admin = require("./admin");
-
 import { DataTypes, UUIDV4 } from "sequelize";
-import sequelize from "../config/db.config.js";
+import { sequelize } from "../config/db.config.js";
 
 const School = sequelize.define(
   "School",
@@ -21,7 +17,7 @@ const School = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: Admin,
+        model: "admins",
         key: "id",
       },
     },
@@ -55,8 +51,5 @@ const School = sequelize.define(
     timestamps: true,
   }
 );
-
-// Relations
-School.belongsTo(Admin, { foreignKey: "admin_id" });
 
 export default School;

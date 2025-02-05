@@ -6,53 +6,35 @@ const BookActivity = sequelize.define(
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4, // Sequelize will automatically generate UUIDv4
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
     },
     user_id: {
-      type: DataTypes.UUID, // Use UUID, not UUIDV4
+      type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "Users",
-        key: "id",
-      },
+      references: { model: "Users", key: "id" },
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     },
     book_id: {
-      type: DataTypes.UUID, // Use UUID, not UUIDV4
+      type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "Book",
-        key: "id",
-      },
+      references: { model: "Book", key: "id" },
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     },
     borrow_date: {
-      type: DataTypes.DATE(),
+      type: DataTypes.DATE,
       allowNull: false,
     },
     return_date: {
-      type: DataTypes.DATE(),
-      allowNull: false,
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     due_date: {
-      type: DataTypes.DATE(),
+      type: DataTypes.DATE,
       allowNull: false,
-    },
-    status: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        if (!this.return_date) {
-          return "Not Returned";
-        } else if (this.return_date <= this.due_date) {
-          return "On Time";
-        } else {
-          return "Overdue";
-        }
-      },
     },
     created_at: {
       type: DataTypes.DATE,
@@ -63,7 +45,17 @@ const BookActivity = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: false, tableName: "book_activity" }
+  {
+    timestamps: false,
+    tableName: "book_activity",
+    getterMethods: {
+      status() {
+        if (!this.return_date) return "Not Returned";
+        if (this.return_date <= this.due_date) return "On Time";
+        return "Overdue";
+      },
+    },
+  }
 );
 
 export default BookActivity;

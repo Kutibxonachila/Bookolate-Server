@@ -6,6 +6,7 @@ import BorrowingActivity from "./Borrowing.Activuty.js"; // Fixed typo in file n
 import WeeklyPopularBooks from "./Weekly.Popular.Book.js";
 import School from "./School.js";
 import Admin from "./Admins.js";
+import Todo from "./Todos.js";
 
 // User and Book Activity
 User.hasMany(BookActivity, {

@@ -26,7 +26,6 @@ const Book = sequelize.define(
     publication_year: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: DataTypes.DATE,
     },
     language: {
       type: DataTypes.STRING,
@@ -49,22 +48,22 @@ const Book = sequelize.define(
       },
     },
     readed_count: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
     missing_books: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
     available: {
       type: DataTypes.SMALLINT,
       allowNull: false,
-      validate: {
-        min: 1,
-      },
       defaultValue: 1,
+      validate: {
+        min: 0,
+      },
     },
     loaned_date: {
       type: DataTypes.DATE,
@@ -102,7 +101,6 @@ const Book = sequelize.define(
       },
     },
     is_subject: {
-      // New field
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
@@ -125,6 +123,9 @@ const Book = sequelize.define(
     grade: {
       type: DataTypes.SMALLINT,
       allowNull: true,
+      validate: {
+        min: 1,
+      },
     },
   },
   {
@@ -133,6 +134,7 @@ const Book = sequelize.define(
     underscored: true,
   }
 );
+
 
 Book.addHook("beforeSave", async (book, options) => {
   try {

@@ -39,7 +39,7 @@ const BorrowingActivity = sequelize.define(
       allowNull: false,
     },
     return_date: {
-      type: DataTypes.DATE, // Mark this as nullable
+      type: DataTypes.DATE,
       allowNull: true,
     },
     status: {
@@ -59,5 +59,10 @@ const BorrowingActivity = sequelize.define(
     tableName: "borrowing_activity",
   }
 );
+
+// Sync without altering schema (this won't attempt to modify the virtual column)
+(async () => {
+  await BorrowingActivity.sync({ force: true   }); // Don't modify the schema
+})();
 
 export default BorrowingActivity;
