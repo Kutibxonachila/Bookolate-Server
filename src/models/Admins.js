@@ -65,6 +65,8 @@ const Admin = sequelize.define(
           }
         },
       },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
   },
   {
@@ -72,5 +74,8 @@ const Admin = sequelize.define(
     timestamps: false,
   }
 );
+
+await sequelize.sync({ alter: true });
+
 
 export default Admin;

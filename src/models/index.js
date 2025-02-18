@@ -61,29 +61,24 @@ WeeklyPopularBooks.belongsTo(Book, {
   foreignKey: { allowNull: false, name: "book_id" },
 });
 
+// ✅ Fixing School and Admin Relationship
 School.hasMany(Admin, {
-  foreignKey: { allowNull: false, name: "admin_id" },
+  foreignKey: { allowNull: false, name: "schoolId" }, // Use ONE foreign key for consistency
 });
-
 Admin.belongsTo(School, {
-  foreignKey: { allowNull: false, name: "admin_id" },
-});
-
-Admin.hasMany(School, {
   foreignKey: { allowNull: false, name: "schoolId" },
 });
 
-School.belongsTo(Admin, {
-  foreignKey: { allowNull: false, name: "schoolId" },
-});
+// bug❌ Removed conflicting Admin.hasMany(School) & School.belongsTo(Admin)
 
-Todo.hasMany(Admin, {
+// HACK Fixing Admin and Todo Relationship
+Admin.hasMany(Todo, {
+  foreignKey: { allowNull: false, name: "admin_id" },
+});
+Todo.belongsTo(Admin, {
   foreignKey: { allowNull: false, name: "admin_id" },
 });
 
-Admin.belongsTo(Todo, {
-  foreignKey: { allowNull: false, name: "admin_id" },
-});
 
 export {
   Book,

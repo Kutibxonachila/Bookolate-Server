@@ -6,3 +6,4 @@ const routerBookActivity = Router();
 routerBookActivity.post("/log", logActivityController);
 
 export default routerBookActivity;
+

@@ -3,25 +3,39 @@ import {
   getAdminById,
   loginAdmin,
   updatePermissionsByDetails,
-} from "../services/admin.service";
+} from "../services/admin.service.js";
 
-export const AddAdmins = async (req, res, next) => {
+export const AddAdmins = async (req, res) => {
   try {
-    const superAdminId = req.user.id;
-    const data = req.body;
-    const admin = await createAdmin(superAdminId, data);
+    const { newAdminData } = req.body;
 
-    console.log(admin);
+    const admin = await createAdmin({
+      firstName: newAdminData.firstName,
+      lastName: newAdminData.lastName,
+      phone: newAdminData.phone,
+      password: newAdminData.password,
+      role: "admin", // Default role
+    });
 
     return res.status(201).json({
       success: true,
       message: "Admin created successfully",
-      data: admin,
+      data: {
+        id: admin.id,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        phone: admin.phone,
+        role: admin.role,
+      },
     });
-  } catch (err) {
-    next(err);
-    console.log(err);
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    console.error("❌ Error in AddAdmins:", error);
+
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+
+    next(error);
   }
 };
 
@@ -98,3 +112,5 @@ export const GetAdminsById = async (req, res, next) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+

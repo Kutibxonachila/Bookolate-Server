@@ -12,6 +12,7 @@ import routerBorrow from "./routes/borrowing.activity.service.router.js";
 import routerSearch from "./routes/search.router.js";
 import routerUser from "./routes/user.routes.js";
 import routerWeeklyPopular from "./routes/weekly.popular.book.router.js";
+import AdminRouter from "./routes/admins.router.js";
 
 const createApp = () => {
   const app = express();
@@ -24,6 +25,7 @@ const createApp = () => {
   app.use(express.static("public")); // Serves files from the 'public' folder
 
   // Routes
+  app.use("/admin",AdminRouter)
   app.use("/alltime_popular", routerAllTimePopularBook);
   app.use("/auth", routerAuth);
   app.use("/book_analytics", routerBookActivityAnalytics);
