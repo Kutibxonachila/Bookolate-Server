@@ -6,10 +6,11 @@ import {
   LoginAdmins,
   UpdatePermissions,
 } from "../controllers/admins.controller.js";
+import { authenticateAdmin, checkSuperAdmin } from "../middlewares/auth.middleware.js";
 
 const AdminRouter = Router();
 
-AdminRouter.post("/super/add", AddAdmins);
+AdminRouter.post("/super/add", authenticateAdmin, checkSuperAdmin, AddAdmins);
 AdminRouter.post("/login", LoginAdmins);
 AdminRouter.patch("/super/permissions", UpdatePermissions);
 AdminRouter.get("/all", GetAllAdmins);

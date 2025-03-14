@@ -1,43 +1,53 @@
 import {
   createAdmin,
   getAdminById,
+  getAllAdmins,
   loginAdmin,
   updatePermissionsByDetails,
 } from "../services/admin.service.js";
 
-export const AddAdmins = async (req, res) => {
+export const AddAdmins = async (req, res, next) => {
   try {
-    const { newAdminData } = req.body;
+    const { firstName, lastName, phone, password, role } = req.body;
 
-    const admin = await createAdmin({
-      firstName: newAdminData.firstName,
-      lastName: newAdminData.lastName,
-      phone: newAdminData.phone,
-      password: newAdminData.password,
-      role: "admin", // Default role
-    });
+    if (!firstName || !lastName || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "firstName, lastName, phone, and password are required",
+      });
+    }
+
+    if (role === "superadmin") {
+      return res.status(403).json({
+        success: false,
+        message: "Superadmins cannot create other superadmins",
+      });
+    }
+
+    const admin = await createAdmin(
+      firstName,
+      lastName,
+      phone,
+      password,
+      role || "admin"
+    );
 
     return res.status(201).json({
       success: true,
       message: "Admin created successfully",
-      data: {
-        id: admin.id,
-        firstName: admin.firstName,
-        lastName: admin.lastName,
-        phone: admin.phone,
-        role: admin.role,
-      },
+      data: admin,
     });
   } catch (error) {
-    console.error("❌ Error in AddAdmins:", error);
+    console.log("❌ Error in AddAdmins:", error);
 
     if (!res.headersSent) {
-      return res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
-
-    next(error);
+    return next(error);
   }
 };
+
+
 
 export const LoginAdmins = async (req, res, next) => {
   try {
@@ -50,11 +60,14 @@ export const LoginAdmins = async (req, res, next) => {
       data: { token, admin },
     });
   } catch (err) {
-    next(err);
-    console.log(err);
-    res.status(500).json({ success: false, message: err.message });
+    console.log("❌ Login Error:", err.message);
+
+    if (!res.headersSent) {
+      return res.status(401).json({ success: false, message: err.message });
+    }
   }
 };
+
 
 export const UpdatePermissions = async (req, res, next) => {
   try {
@@ -80,8 +93,8 @@ export const UpdatePermissions = async (req, res, next) => {
 
 export const GetAllAdmins = async (req, res, next) => {
   try {
-    const superAdminId = req.user.id;
-    const admins = await getAllAdmins(superAdminId);
+    // const superAdminId = req.user.id;
+    const admins = await getAllAdmins();
 
     return res.status(200).json({
       success: true,
@@ -112,5 +125,3 @@ export const GetAdminsById = async (req, res, next) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-

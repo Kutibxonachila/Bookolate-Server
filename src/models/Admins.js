@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db.config.js";
 import { DataTypes, UUIDV4 } from "sequelize";
+import bcrypt from "bcrypt";
 
 
 const Admin = sequelize.define(
@@ -75,7 +76,16 @@ const Admin = sequelize.define(
   }
 );
 
-await sequelize.sync({ alter: true });
+(async () => {
+  await sequelize.sync({ alter: true });
+})();
 
+
+Admin.beforeCreate(async (admin) => {
+  if (admin.password) {
+    const salt = await bcrypt.genSalt(10);
+    admin.password = await bcrypt.hash(admin.password, salt);
+  }
+});
 
 export default Admin;

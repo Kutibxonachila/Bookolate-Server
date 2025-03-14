@@ -62,7 +62,7 @@ const BorrowingActivity = sequelize.define(
 
 // Sync without altering schema (this won't attempt to modify the virtual column)
 (async () => {
-  await BorrowingActivity.sync({ force: true   }); // Don't modify the schema
+  await BorrowingActivity.sync({ alter: true }); // Don't modify the schema
 })();
 
 export default BorrowingActivity;
