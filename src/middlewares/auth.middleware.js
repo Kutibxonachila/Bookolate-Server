@@ -90,3 +90,22 @@ export const checkSuperAdmin = (req, res, next) => {
   }
   next();
 };
+
+export const authMiddleware = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token)
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    const admin = await Admin.findByPk(decoded.id);
+
+    if (!admin)
+      return res.status(403).json({ success: false, message: "Invalid token" });
+
+    req.user = admin;
+    next();
+  } catch (error) {
+    return res.status(403).json({ success: false, message: "Invalid token" });
+  }
+};
