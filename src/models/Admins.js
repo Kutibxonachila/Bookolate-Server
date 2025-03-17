@@ -76,9 +76,7 @@ const Admin = sequelize.define(
   }
 );
 
-(async () => {
-  await sequelize.sync({ alter: true });
-})();
+sequelize.sync({ alter: true });
 
 
 Admin.beforeCreate(async (admin) => {

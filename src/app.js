@@ -12,6 +12,7 @@ import routerBorrow from "./routes/borrowing.activity.service.router.js";
 import routerSearch from "./routes/search.router.js";
 import routerUser from "./routes/user.routes.js";
 import routerWeeklyPopular from "./routes/weekly.popular.book.router.js";
+import SchoolRouter from "./routes/school.routes.js";
 import AdminRouter from "./routes/admins.router.js";
 
 const createApp = () => {
@@ -34,6 +35,7 @@ const createApp = () => {
   app.use("/book", routerBook);
   app.use("/borrowing", routerBorrow);
   app.use("/search", routerSearch);
+  app.use("/school",SchoolRouter)
   app.use("/user", routerUser);
   app.use("/weekly", routerWeeklyPopular);
 

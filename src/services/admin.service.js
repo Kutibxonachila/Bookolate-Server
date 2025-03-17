@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js";
 import { Op } from "sequelize";
 
-
 export const createAdmin = async (
   firstName,
   lastName,
@@ -14,14 +13,15 @@ export const createAdmin = async (
 ) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-
-  return await Admin.create({
+  const admin = await Admin.create({
     firstName,
     lastName,
     phone,
     password: hashedPassword,
     role,
   });
+  await admin.save();
+  return admin;
 };
 
 export const loginAdmin = async (phone, password) => {
@@ -29,15 +29,19 @@ export const loginAdmin = async (phone, password) => {
     const admin = await Admin.findOne({ where: { phone } });
     if (!admin) throw new Error("Admin not found");
 
-    // Check if the stored password is hashed
+    console.log("🔹 Admin topildi:", admin);
+    console.log("🔹 Admin paroli (bazadagi):", admin.password);
+    console.log("🔹 Foydalanuvchi kiritgan parol:", password);
+
     if (!admin.password.startsWith("$2b$")) {
       throw new Error(
         "Invalid stored password format. Try resetting your password."
       );
     }
 
-    // Compare the hashed password
     const isMatch = await bcrypt.compare(password, admin.password);
+    console.log("✅ Parol mosligi:", isMatch);
+
     if (!isMatch) {
       throw new Error("Invalid credentials");
     }
@@ -49,9 +53,15 @@ export const loginAdmin = async (phone, password) => {
       expiresIn: "7d",
     });
 
-    return { token, admin };
+    console.log("✅ Token:", token);
+    return {
+      success: true,
+      message: "Admin logged in successfully",
+      data: { token, admin },
+    };
   } catch (error) {
-    throw new Error(error.message);
+    console.error("❌ Login Error:", error.message);
+    return { success: false, message: error.message, data: {} };
   }
 };
 

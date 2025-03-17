@@ -55,7 +55,6 @@ export const authorizeSuperAdmin = (req, res, next) => {
   next();
 };
 
-
 export const authenticateAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // Get token from header
@@ -70,6 +69,7 @@ export const authenticateAdmin = async (req, res, next) => {
     if (!req.admin) {
       return res.status(401).json({ success: false, message: "Invalid token" });
     }
+    console.log("Admin object before token creation:", admin);
 
     next(); // Move to next middleware/controller
   } catch (error) {
@@ -81,12 +81,10 @@ export const authenticateAdmin = async (req, res, next) => {
 
 export const checkSuperAdmin = (req, res, next) => {
   if (req.admin.role !== "superadmin") {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Forbidden: Only superadmins can perform this action",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Forbidden: Only superadmins can perform this action",
+    });
   }
   next();
 };

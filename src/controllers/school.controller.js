@@ -22,6 +22,8 @@ export const CreateSchool = async (req, res) => {
   }
 };
 
+/*eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNmNDlmMmM3LWQxMjgtNDc3MC05OWRiLTc1MGUyNGRjYmIxOSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzQyMDY1NTA5LCJleHAiOjE3NDI2NzAzMDl9.y_71crheUpYdud0-oubHXEMo3F2e_UFwnq4i_NKE6NA*/
+
 export const GetSchool = async (req, res) => {
   try {
     const adminId = req.user.id; // Get logged-in admin ID
