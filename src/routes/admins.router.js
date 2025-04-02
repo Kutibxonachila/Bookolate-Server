@@ -12,7 +12,7 @@ const AdminRouter = Router();
 
 AdminRouter.post("/super/add", authenticateAdmin, checkSuperAdmin, AddAdmins);
 AdminRouter.post("/login", LoginAdmins);
-AdminRouter.patch("/super/permissions", UpdatePermissions);
+AdminRouter.patch("/super/permissions",authenticateAdmin,checkSuperAdmin, UpdatePermissions);
 AdminRouter.get("/all", GetAllAdmins);
 AdminRouter.get("/admin/:id", GetAdminsById);
 

@@ -6,6 +6,7 @@ import {
   modifyUser,
   removeUserByUUID,
   removeAllUsers,
+  fetchUserByToken,
 } from "../controllers/user.controller.js";
 
 const routerUser = express.Router();
@@ -18,6 +19,9 @@ routerUser.get("/users", fetchUserByQuery);
 
 // Get user by UUID
 routerUser.get("/users/:id", fetchUserByUUID);
+
+// Get user by token
+routerUser.get("/users/token", fetchUserByToken);
 
 // Update user
 routerUser.patch("/users/:userId", modifyUser);

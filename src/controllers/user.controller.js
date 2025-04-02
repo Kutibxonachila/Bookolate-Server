@@ -3,6 +3,7 @@ import {
   deleteUserByUUID,
   getAllUser,
   getUserByQuery,
+  getUserByToken,
   getUserByUUID,
   UpdateUser,
 } from "../services/user.service.js";
@@ -170,6 +171,16 @@ export const fetchUserByUUID = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export const fetchUserByToken = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Token not provided" });
+
+  const user = await getUserByToken(token);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  res.json(user);
 };
 
 // Update user

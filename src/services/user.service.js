@@ -1,5 +1,6 @@
 import { User } from "../models/index.js";
 import { Op } from "sequelize";
+import { JWT_SECRET_KEY } from "../config/env.config.js";
 
 
 export const getAllUser = async () => {
@@ -10,45 +11,6 @@ export const getAllUser = async () => {
     throw new Error("Error fetching users: " + error.message);
   }
 };
-
-// export const getUserByQuery = async (queryParams) => {
-//   try {
-//     const whereClause = {};
-
-//     // Loop through query parameters to dynamically build where clause
-//     for (const [key, value] of Object.entries(queryParams)) {
-//       if (User.getAttributes()[key]) {
-//         if (isNaN(value)) {
-//           // Case-insensitive search for non-numeric fields
-//           whereClause[key] = { [Op.iLike]: `%${value}%` };
-//         } else {
-//           // Exact match for numeric fields
-//           whereClause[key] = { [Op.eq]: parseInt(value, 10) };
-//         }
-//       }
-//     }
-
-//     console.log("Where Clause:", whereClause);
-
-//     // Return an empty array if no valid query fields are provided
-//     if (Object.keys(whereClause).length === 0) {
-//       return [];
-//     }
-
-//     // Fetch users matching the query parameters
-//     const users = await User.findAll({ where: whereClause });
-
-//     if (!users.length) {
-//       return [];
-//     }
-
-//     return users.map((user) => user.get({ plain: true }));
-//   } catch (error) {
-//     console.error("Service Error:", error.message);
-//     throw new Error("Error fetching users data by query: " + error.message);
-//   }
-// };
-
 
 export const getUserByQuery = async (queryParams) => {
   try {
@@ -120,6 +82,32 @@ export const UpdateUser = async (userId, updatedData) => {
     return user.toJSON(); // Convert Sequelize instance to plain object
   } catch (error) {
     throw new Error("Error updating user: " + error.message);
+  }
+};
+
+
+export const getUserByToken = async (token) => {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    if (!decoded || !decoded.id) return null;
+
+    const user = await User.findByPk(decoded.id, {
+      attributes: [
+        "id",
+        "first_name",
+        "last_name",
+        "phone",
+        "gender",
+        "total_borrowed_books",
+        "on_time_returns",
+        "overdue_returns",
+      ],
+    });
+
+    return user;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    return null;
   }
 };
 
