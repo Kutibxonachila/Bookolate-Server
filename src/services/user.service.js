@@ -65,7 +65,19 @@ export const getUserByUUID = async (userId) => {
   }
 };
 
+export const getUserProfile = async (userId) => {
+  if (!userId) throw new Error("User ID is required");
 
+  const user = await User.findByPk(userId, {
+    attributes: {
+      exclude: ["password", "token_"], // don't return sensitive data
+    },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  return user;
+};
 
 export const UpdateUser = async (userId, updatedData) => {
   try {
@@ -88,28 +100,55 @@ export const UpdateUser = async (userId, updatedData) => {
 
 export const getUserByToken = async (token) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET_KEY);
-    if (!decoded || !decoded.id) return null;
+    const authHeader = req.headers.authorization;
 
-    const user = await User.findByPk(decoded.id, {
-      attributes: [
-        "id",
-        "first_name",
-        "last_name",
-        "phone",
-        "gender",
-        "total_borrowed_books",
-        "on_time_returns",
-        "overdue_returns",
-      ],
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid token format" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // Tokenni konsolda tekshir
+    console.log("Received Token:", token);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Decoded tokenni tekshir
+    console.log("Decoded Token:", decoded);
+
+    if (!decoded || !decoded.id) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid token structure" });
+    }
+
+    // UUID formatini tekshir
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(decoded.id)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid UUID format" });
+    }
+
+    const user = await User.findOne({
+      where: { id: decoded.id },
+      attributes: ["id", "first_name", "last_name", "phone"],
     });
 
-    return user;
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.json({ success: true, user });
   } catch (error) {
-    console.error("Token verification failed:", error);
-    return null;
+    console.error("Error fetching user:", error.message);
+    res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 export const deleteUserByUUID = async (userId) => {
   try {

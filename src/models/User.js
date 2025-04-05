@@ -49,10 +49,14 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    token_: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: false,
-    tableName:"Users"
+    tableName: "Users",
   }
 );
 

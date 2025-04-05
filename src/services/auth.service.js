@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../config/env.config.js";
 
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
-
 // Register user service
 export const registerUser = async (
   firstName,
@@ -18,12 +17,23 @@ export const registerUser = async (
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Generate a token for the user
+    const token = jwt.sign(
+      {
+        phone,
+      },
+      JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
+
+    // Create the user with the token
     return await User.create({
       first_name: firstName,
       last_name: lastName,
       phone,
       password: hashedPassword,
       gender,
+      token, // Save the token in the database
       total_borrowed_books: 0, // Default value
       on_time_returns: 0, // Default value
       overdue_returns: 0, // Default value

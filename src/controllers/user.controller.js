@@ -5,6 +5,7 @@ import {
   getUserByQuery,
   getUserByToken,
   getUserByUUID,
+  getUserProfile,
   UpdateUser,
 } from "../services/user.service.js";
 import redis from "../config/redis.js"; // Importing Redis
@@ -174,13 +175,47 @@ export const fetchUserByUUID = async (req, res) => {
 };
 
 export const fetchUserByToken = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Token not provided" });
+  const authHeader = req.headers.authorization;
 
-  const user = await getUserByToken(token);
-  if (!user) return res.status(404).json({ message: "User not found" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid token format" });
+  }
 
-  res.json(user);
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const user = await getUserByToken(token);
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error("Error fetching user by UUID:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error fetching user", error: error.message });
+  }
+};
+
+export const fetchProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const user = await getUserProfile(userId);
+
+    res.status(200).json({
+      message: "User profile fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching user profile",
+      error: error.message,
+    });
+  }
 };
 
 // Update user

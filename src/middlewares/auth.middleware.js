@@ -3,38 +3,22 @@ import { JWT_SECRET_KEY } from "../config/env.config.js";
 import { Admin } from "../models/index.js";
 
 export const verifyToken = (req, res, next) => {
-  const token = req.headers["authorization"];
+  const authHeader = req.headers.authorization;
 
-  // Check if token is provided
-  if (!token) {
-    return res
-      .status(403)
-      .json({ success: false, message: "No token provided" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
   }
 
-  // Split token to get the Bearer token
-  const bearerToken = token.split(" ")[1];
+  const token = authHeader.split(" ")[1];
 
-  if (!bearerToken) {
-    return res
-      .status(403)
-      .json({ success: false, message: "Token format is incorrect" });
-  }
-
-  // Verify the token
-  jwt.verify(bearerToken, JWT_SECRET_KEY, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    // If valid, attach the decoded information to the request object
-    req.user = decoded;
-
-    // Proceed to the next middleware or route handler
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // you’ll access req.user.id in controller
     next();
-  });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
 };
-
 export const authenticate = (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
